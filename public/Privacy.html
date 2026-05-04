@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClousX | Privacy</title>
+    <meta name="description" content="سياسة الخصوصية وحماية البيانات لمستخدمي منصة ClousX لمولد يوزرات انستقرام.">
+    <link rel="icon" type="image/png" href="https://clousx.web.app/assets/favicon.png">
+    <link rel="apple-touch-icon" href="https://clousx.web.app/assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0b;
+            --bg-darker: #050506;
+            --primary: #59e060;
+            --primary-glow: rgba(89, 224, 96, 0.15);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a5;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-light: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.06);
+            --font-main: 'Cairo', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: auto;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            direction: rtl;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            height: auto;
+        }
+
+        /* Suble Grain Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.025;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- HEADER --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: transparent;
+            padding: 25px 0;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border-bottom: 1px solid transparent;
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            direction: ltr;
+            justify-content: flex-start;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            direction: ltr;
+        }
+
+        .logo .dot {
+            color: var(--primary);
+            order: 2;
+            margin-left: 1px;
+            text-shadow: 0 0 15px rgba(89, 224, 96, 0.5);
+        }
+
+        /* Layout */
+        .g-container {
+            display: flex;
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar - Right side for RTL */
+        .g-sidebar {
+            width: 280px;
+            border-left: 1px solid var(--border);
+            background: var(--bg-darker);
+            position: fixed;
+            top: 80px;
+            bottom: 0;
+            right: 0;
+            padding: 32px 20px;
+            overflow-y: auto;
+        }
+
+        .g-nav-section {
+            margin-bottom: 32px;
+        }
+
+        .g-nav-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            padding: 0 12px;
+            opacity: 0.6;
+        }
+
+        .g-nav-link {
+            display: block;
+            padding: 12px 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 4px;
+        }
+
+        .g-nav-link:hover {
+            background: var(--surface-light);
+            transform: translateX(-5px);
+        }
+
+        .g-nav-link.active {
+            background: var(--surface);
+            color: var(--primary);
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Table of Contents - Left side */
+        .g-toc {
+            width: 240px;
+            padding: 48px 24px;
+            position: fixed;
+            top: 80px;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .g-toc-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .g-toc-link {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: 0.2s;
+            border-right: 2px solid transparent;
+            padding-right: 12px;
+        }
+
+        .g-toc-link:hover,
+        .g-toc-link.active {
+            color: var(--primary);
+            border-right-color: var(--primary);
+        }
+
+        /* Content Area */
+        .g-content {
+            flex: 1;
+            margin-right: 280px;
+            margin-left: 240px;
+            padding: 64px 5%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .g-article {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .content-breadcrumbs {
+            display: flex;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .g-article h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .g-status-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+        }
+
+        /* Sections */
+        .g-section {
+            margin-bottom: 64px;
+            scroll-margin-top: 100px;
+        }
+
+        .g-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .g-section p {
+            font-size: 1.15rem;
+            color: #c9d1d9;
+            margin-bottom: 20px;
+            line-height: 1.9;
+        }
+
+        .g-list {
+            list-style: none;
+            margin-right: 12px;
+        }
+
+        .g-list li {
+            position: relative;
+            padding-right: 32px;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            color: #c9d1d9;
+        }
+
+        .g-list li::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 12px;
+            width: 10px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .g-callout {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .g-callout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .g-callout h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .footer-action-link {
+            display: block;
+            margin-top: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .footer-action-link:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .g-content-footer {
+            margin-top: 60px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .g-toc {
+                display: none;
+            }
+
+            .g-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .g-sidebar {
+                display: none;
+            }
+
+            .g-content {
+                margin-right: 0;
+                padding: 40px 24px;
+            }
+
+            .navbar {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+            .nav-container {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========== SITE CLOSED OVERLAY ========== -->
+    <div id="site-closed"
+        style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:#0b0c10;font-family:'Cairo',sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;direction:rtl;background-image:radial-gradient(circle at 25% 50%,rgba(89,224,96,0.06) 0%,transparent 45%),linear-gradient(180deg,#0b0c10 0%,#050608 100%);">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap');
+
+            html,
+            body {
+                overflow: hidden !important;
+                height: 100% !important;
+                touch-action: none !important;
+                overscroll-behavior: none !important;
+            }
+
+            body *:not(#site-closed):not(#site-closed *) {
+                pointer-events: none !important;
+                user-select: none !important;
+            }
+
+            #site-closed,
+            #site-closed * {
+                pointer-events: auto !important;
+            }
+
+            #site-closed::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 500px;
+                height: 500px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(89, 224, 96, 0.12) 0%, transparent 70%);
+                filter: blur(60px);
+                animation: glowPulse 4s ease-in-out infinite;
+            }
+
+            @keyframes glowPulse {
+
+                0%,
+                100% {
+                    opacity: 0.4;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+
+                50% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scale(1.15);
+                }
+            }
+        </style>
+        <div style="position:relative;z-index:2;padding:20px;max-width:600px;">
+            <div style="font-size:2rem;font-weight:700;color:#fff;margin-bottom:25px;direction:ltr;">ClousX<span
+                    style="color:#59e060;">.</span></div>
+            <h1 style="font-size:2.5rem;font-weight:800;color:#fff;margin:0 0 20px 0;line-height:1.3;">الموقع <span
+                    style="color:#59e060;">مغلق</span></h1>
+            <p style="color:#9ca3af;font-size:1.1rem;line-height:1.8;margin:0;">الموقع مغلق حتى إشعار آخر<br>شكراً
+                لتفهمكم</p>
+        </div>
+    </div>
+    <!-- ========== END OVERLAY ========== -->
+
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">ClousX<span class="dot">.</span></a>
+        </div>
+    </nav>
+
+    <div class="g-container">
+        <aside class="g-sidebar">
+            <div class="g-nav-section">
+                <span class="g-nav-title">الخصوصية والأمان</span>
+                <a href="#collection" class="g-nav-link active">جمع البيانات</a>
+                <a href="#usage" class="g-nav-link">كيف نستخدم بياناتك</a>
+                <a href="#tracking" class="g-nav-link">ملفات تعريف الارتباط</a>
+            </div>
+            <div class="g-nav-section">
+                <span class="g-nav-title">الحماية القانونية</span>
+                <a href="#security" class="g-nav-link">أمان المعلومات</a>
+                <a href="#consent" class="g-nav-link">الموافقة التلقائية</a>
+            </div>
+            <div class="g-nav-section" style="margin-top: auto; padding-top: 40px;">
+                <span class="g-nav-title">روابط سريعة</span>
+                <a href="terms.html" class="g-nav-link">شروط الخدمة</a>
+                <a href="Contact.html" class="g-nav-link">تواصل معنا</a>
+                <a href="index.html" class="g-nav-link">الرئيسية</a>
+            </div>
+        </aside>
+
+        <main class="g-content">
+            <article class="g-article">
+                <div class="content-breadcrumbs">
+                    <span>السياسات</span> / <span>سياسة الخصوصية</span>
+                </div>
+
+                <h1>سياسة الخصوصية</h1>
+
+                <div class="g-status-info">
+                    <span>رقم المراجعة: <strong>v1.0.0</strong></span>
+                    <span>آخر تحديث: <strong>3 يناير 2026</strong></span>
+                    <span style="color: var(--primary);">● نشط</span>
+                </div>
+
+                <section id="collection" class="g-section">
+                    <h2>ما هي البيانات التي نجمعها؟</h2>
+                    <p>في ClousX، نؤمن بالحد الأدنى من جمع البيانات. نحن لا نطلب منك اسماً، بريداً إلكترونياً، أو أي
+                        معلومات شخصية مباشرة. ومع ذلك، لضمان استقرار الخدمة وحمايتها، نقوم بجمع بعض المعلومات التقنية
+                        تلقائياً:</p>
+                    <ul class="g-list">
+                        <li><strong>عنوان الـ IP:</strong> يتم تسجيله مؤقتاً لفرض نظام "العد التنازلي" (Cooldown) ومنع
+                            إساءة استخدام الخدمة عن طريق البوتات.</li>
+                        <li><strong>بيانات الجهاز:</strong> مثل نوع المتصفح، نظام التشغيل، وحجم الشاشة لضمان عرض الموقع
+                            بشكل صحيح.</li>
+                        <li><strong>بيانات الاستخدام:</strong> عدد المرات التي قمت فيها بتوليد يوزر، والوقت المستغرق في
+                            عملية البحث.</li>
+                    </ul>
+                </section>
+
+                <div class="g-callout">
+                    <h3>التزام بالبساطة</h3>
+                    <p>المبدأ الأساسي لدينا هو أننا لا نريد معرفة من أنت، بل نريد فقط التأكد من أنك "إنسان" تستخدم
+                        الخدمة بشكل عادل.</p>
+                </div>
+
+                <section id="usage" class="g-section">
+                    <h2>لماذا نجمع هذه المعلومات؟</h2>
+                    <p>استخدام المعلومات التقنية التي نجمعها محصور في الأغراض التالية فقط:</p>
+                    <ul class="g-list">
+                        <li><strong>تنظيم الوصول:</strong> استخدام عنوان IP للتأكد من التزام المستخدم بفترة الانتظار (30
+                            دقيقة) بين كل عملية توليد.</li>
+                        <li><strong>الحماية الأمنية:</strong> الكشف عن محاولات الهجوم أو محاولات سحب البيانات (Web
+                            Scraping) بشكل غير قانوني.</li>
+                        <li><strong>تحسين التجربة:</strong> فهم أي المتصفحات هي الأكثر استخداماً لتحسين استقرار الموقع
+                            عليها.</li>
+                    </ul>
+                </section>
+
+                <section id="tracking" class="g-section">
+                    <h2>ملفات تعريف الارتباط (Cookies)</h2>
+                    <p>نحن نستخدم ملفات تعريف الارتباط الأساسية والتقنيات المشابهة لتذكر حالة التسجيل المؤقتة الخاصة بك
+                        وتفضيلات العرض. كما يستخدم شركاؤنا (مثل Google AdSense) ملفات تعريف الارتباط لعرض إعلانات مخصصة
+                        بناءً على اهتماماتك التقنية.</p>
+                </section>
+
+                <section id="security" class="g-section">
+                    <h2>أمان معلوماتك</h2>
+                    <p>لا يتم بيع، تأجير، أو مشاركة أي من بياناتك التقنية مع أي جهة خارجية، باستثناء ما تطلبه القوانين
+                        الرسمية أو الخدمات الإعلانية المدمجة التي وافقت عليها ضمنياً عبر استخدام المتصفح.</p>
+                </section>
+
+                <section id="consent" class="g-section">
+                    <h2>الموافقة التلقائية</h2>
+                    <p>بمجرد استمرارك في استخدام موقع ClousX وتفاعلكم مع أداة توليد اليوزرات، فإنك تقر بأنك قد قرأت
+                        سياسة
+                        الخصوصية هذه وفهمتها تماماً.</p>
+                    <div class="g-callout" style="border-right: 4px solid var(--primary);">
+                        <p><strong>ملاحظة هامة:</strong> إن استخدامك للموقع يعتبر موافقة تلقائية وملزمة قانوناً على كافة
+                            بنود جمع ومعالجة البيانات المذكورة في هذه الصفحة.</p>
+                    </div>
+                </section>
+
+                <div class="g-feedback" style="margin-top: 40px;">
+                    <a href="index.html" class="footer-action-link">العودة للصفحة الرئيسية &larr;</a>
+                </div>
+
+                <div class="g-content-footer" style="justify-content: center; opacity: 0.5;">
+                    <span>&copy; 2026 ClousX Inc. جميع الحقوق محفوظة.</span>
+                </div>
+            </article>
+        </main>
+
+        <aside class="g-toc">
+            <div class="g-toc-title">محتويات الصفحة</div>
+            <a href="#collection" class="g-toc-link active">جمع البيانات</a>
+            <a href="#usage" class="g-toc-link">أسباب الاستخدام</a>
+            <a href="#tracking" class="g-toc-link">الإعلانات والملفات</a>
+            <a href="#security" class="g-toc-link">أمان المعلومات</a>
+            <a href="#consent" class="g-toc-link">الموافقة التلقائية</a>
+        </aside>
+    </div>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+
+    <script>
+        // --- Smooth Scroll (Lenis) ---
+        const SmoothScroll = {
+            lenis: null,
+            init() {
+                if (typeof Lenis === 'undefined') return;
+                this.lenis = new Lenis({
+                    duration: 1.2,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    direction: 'vertical',
+                    gestureDirection: 'vertical',
+                    smooth: true,
+                    mouseMultiplier: 1,
+                    smoothTouch: true,
+                    touchMultiplier: 2,
+                });
+
+                function raf(time) {
+                    SmoothScroll.lenis.raf(time);
+                    requestAnimationFrame(raf);
+                }
+                requestAnimationFrame(raf);
+
+                // Handle Anchor Links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = anchor.getAttribute('href').substring(1);
+                        const target = document.getElementById(targetId);
+                        if (target) this.lenis.scrollTo(target);
+                    });
+                });
+            }
+        };
+        SmoothScroll.init();
+
+        const sections = document.querySelectorAll('.g-section');
+        const tocLinks = document.querySelectorAll('.g-toc-link');
+        const sidebarLinks = document.querySelectorAll('.g-nav-link');
+        const navbar = document.querySelector('.navbar');
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            const updateActive = (links) => {
+                links.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+
+            updateActive(tocLinks);
+            updateActive(sidebarLinks);
+        });
+    </script>
+</body>
+
+</html>

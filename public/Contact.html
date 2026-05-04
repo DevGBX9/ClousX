@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClousX | Contact</title>
+    <meta name="description"
+        content="تواصل مع فريق تطوير ClousX واطلع على الأسئلة الشائعة حول خدمة مولد يوزرات انستقرام.">
+    <link rel="icon" type="image/png" href="https://clousx.web.app/assets/favicon.png">
+    <link rel="apple-touch-icon" href="https://clousx.web.app/assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            /* Google Minimalist Palette */
+            --bg-page: #0b0c10;
+            --primary: #59e060;
+            --primary-dim: rgba(89, 224, 96, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #9aa3af;
+            --border: rgba(255, 255, 255, 0.08);
+            --font-main: 'Cairo', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: auto;
+        }
+
+        /* Custom Overrides for Google Support Theme on this page */
+        body {
+            background-color: #0b0c10;
+            height: auto;
+        }
+
+        .navbar {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .contact-nav-container {
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 900px) {
+            .contact-nav-container {
+                justify-content: center;
+            }
+        }
+
+        .page-header {
+            padding: 160px 0 60px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            direction: ltr;
+        }
+
+        .logo .dot {
+            color: var(--primary);
+        }
+
+        /* Header - Google Support Theme */
+        .page-header {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #17191c;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 50px 16px 20px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #1e2024;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            font-size: 1.1rem;
+            background: var(--surface-light);
+            border-radius: 12px;
+            margin-bottom: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            margin-bottom: 80px;
+        }
+
+        .faq-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 32px;
+            font-weight: 700;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question {
+            width: 100%;
+            background: none;
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: right;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-icon {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, margin-top 0.3s;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            margin-top: 16px;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        /* Support Text Block */
+        .support-footer {
+            text-align: center;
+            padding: 40px 0 100px;
+            border-top: 1px solid var(--border);
+        }
+
+        .support-footer h3 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        .support-footer p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .support-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: opacity 0.2s;
+        }
+
+        .support-footer a:hover {
+            opacity: 0.8;
+        }
+
+        /* Clean Highlight Class - No layout shift */
+        .highlight {
+            color: var(--primary);
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-weight: inheriting;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 32px 0;
+            text-align: center;
+            color: #5f6368;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* AI Chat Widget Refined */
+        /* AI Chat Widget - Compact & Premium */
+        .ai-widget-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 10000;
+            font-family: var(--font-main);
+        }
+
+        .ai-fab {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #000;
+            font-size: 20px;
+        }
+
+        .ai-fab:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .ai-chat-window {
+            position: absolute;
+            bottom: 65px;
+            right: 0;
+            width: 320px;
+            height: 480px;
+            background: rgba(15, 15, 16, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px) scale(0.96);
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-origin: bottom right;
+        }
+
+        .ai-chat-window.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .ai-handle {
+            display: none !important;
+        }
+
+        .ai-header {
+            padding: 16px 20px;
+            background: #0b0c10;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            position: relative;
+            direction: ltr !important;
+            justify-content: flex-start !important;
+        }
+
+        .header-brand {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center;
+            gap: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            user-select: none;
+            line-height: 1;
+            text-decoration: none;
+        }
+
+        .header-brand .logo-p {
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .ai-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            touch-action: pan-y;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+            overscroll-behavior: contain;
+        }
+
+        .ai-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .ai-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .ai-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+
+        .ai-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+            animation: msgSlide 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes msgSlide {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: #fff;
+            color: #000;
+            border-bottom-right-radius: 4px;
+            font-weight: 600;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .ai-input-area {
+            padding: 15px 20px 25px;
+            background: transparent;
+        }
+
+        .ai-input-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .ai-input-wrapper:focus-within {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .ai-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px 16px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            line-height: 1.4;
+        }
+
+        .ai-send {
+            background: transparent;
+            color: var(--primary);
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            margin-left: 2px;
+        }
+
+        .ai-send:hover {
+            color: #fff;
+        }
+
+        .ai-send i {
+            font-size: 1.15rem;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            width: fit-content;
+        }
+
+        .loading-dot {
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: dotAnim 1.4s infinite ease-in-out;
+        }
+
+        /* Q&A Button Styles */
+        .qa-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .qa-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .qa-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .contact-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #fff;
+            color: #000;
+            padding: 10px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .contact-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .contact-btn i {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 480px) {
+            .ai-widget-container {
+                right: 20px;
+                bottom: 20px;
+            }
+
+            .ai-chat-window {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                width: 100vw;
+                height: 75vh;
+                border-radius: 30px 30px 0 0;
+                transform: translateY(100%);
+                border: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(10, 10, 11, 0.95);
+            }
+
+            .ai-chat-window.open {
+                transform: translateY(0);
+            }
+
+            /* Mobile Handle */
+            .ai-handle {
+                display: block !important;
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 40px;
+                height: 5px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                cursor: pointer;
+                z-index: 10;
+            }
+
+            .ai-handle:active {
+                background: rgba(255, 255, 255, 0.4);
+            }
+
+            .ai-header {
+                justify-content: center !important;
+                padding: 24px 20px 16px;
+                background: #0b0c10;
+            }
+
+            .ai-handle {
+                display: block !important;
+            }
+
+            .ai-messages {
+                padding: 15px;
+            }
+
+            .message {
+                max-width: 90%;
+                font-size: 0.95rem;
+            }
+
+            .ai-input-area {
+                padding: 10px 15px 40px;
+                background: rgba(0, 0, 0, 0.3);
+            }
+
+            .ai-input-wrapper {
+                border-radius: 30px;
+                background: rgba(255, 255, 255, 0.07);
+            }
+
+            .ai-input {
+                padding: 12px 18px;
+                font-size: 1rem;
+            }
+
+            .ai-send {
+                width: 44px;
+                height: 44px;
+            }
+
+            .ai-fab:active,
+            .ai-send:active {
+                transform: scale(0.92);
+                transition: transform 0.1s;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========== SITE CLOSED OVERLAY ========== -->
+    <div id="site-closed"
+        style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:#0b0c10;font-family:'Cairo',sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;direction:rtl;background-image:radial-gradient(circle at 25% 50%,rgba(89,224,96,0.06) 0%,transparent 45%),linear-gradient(180deg,#0b0c10 0%,#050608 100%);">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap');
+
+            html,
+            body {
+                overflow: hidden !important;
+                height: 100% !important;
+                touch-action: none !important;
+                overscroll-behavior: none !important;
+            }
+
+            body *:not(#site-closed):not(#site-closed *) {
+                pointer-events: none !important;
+                user-select: none !important;
+            }
+
+            #site-closed,
+            #site-closed * {
+                pointer-events: auto !important;
+            }
+
+            #site-closed::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 500px;
+                height: 500px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(89, 224, 96, 0.12) 0%, transparent 70%);
+                filter: blur(60px);
+                animation: glowPulse 4s ease-in-out infinite;
+            }
+
+            @keyframes glowPulse {
+
+                0%,
+                100% {
+                    opacity: 0.4;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+
+                50% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scale(1.15);
+                }
+            }
+        </style>
+        <div style="position:relative;z-index:2;padding:20px;max-width:600px;">
+            <div style="font-size:2rem;font-weight:700;color:#fff;margin-bottom:25px;direction:ltr;">ClousX<span
+                    style="color:#59e060;">.</span></div>
+            <h1 style="font-size:2.5rem;font-weight:800;color:#fff;margin:0 0 20px 0;line-height:1.3;">الموقع <span
+                    style="color:#59e060;">مغلق</span></h1>
+            <p style="color:#9ca3af;font-size:1.1rem;line-height:1.8;margin:0;">الموقع مغلق حتى إشعار آخر<br>شكراً
+                لتفهمكم</p>
+        </div>
+    </div>
+    <!-- ========== END OVERLAY ========== -->
+
+
+    <nav class="navbar">
+        <div class="nav-container contact-nav-container">
+            <a href="index.html#hero" class="logo">ClousX<span class="dot">.</span></a>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>كيف يمكننا مساعدتك؟</h1>
+            <p>ابحث عن إجابات لاستفساراتك أو تواصل معنا</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-container">
+            <div class="search-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <input type="text" id="faqSearch" class="search-input" placeholder="وصف مشكلتك... (مثال: يوزر، مجاني)"
+                autocomplete="off">
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            <p>لا توجد نتائج مطابقة لبحثك.</p>
+        </div>
+
+        <main class="faq-section">
+            <h2>الأسئلة الشائعة</h2>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span class="q-text">ما هو موقع ClousX؟</span>
+                    <span class="faq-icon">▾</span>
+                </button>
+                <div class="faq-answer">
+                    أداة تقنية متخصصة في مساعدة المستخدمين على إيجاد أسماء مستخدمين متاحين في انستقرام من خلال خوارزميات
+                    فحص متقدمة.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span class="q-text">هل الخدمة مجانية؟</span>
+                    <span class="faq-icon">▾</span>
+                </button>
+                <div class="faq-answer">
+                    نعم، الخدمة مجانية تماماً للمستخدمين.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span class="q-text">كم مرة يمكنني توليد يوزر؟</span>
+                    <span class="faq-icon">▾</span>
+                </button>
+                <div class="faq-answer">
+                    يمكنك محاولة توليد يوزر مرة واحدة كل 30 دقيقة لضمان الاستخدام العادل للجميع.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span class="q-text">هل أحتاج لتسجيل بياناتي الشخصية؟</span>
+                    <span class="faq-icon">▾</span>
+                </button>
+                <div class="faq-answer">
+                    لا، الموقع لا يتطلب أي بيانات شخصية أو تسجيل دخول معقد للبدء.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">
+                    <span class="q-text">ماذا أفعل إذا لم أجد يوزر متاح؟</span>
+                    <span class="faq-icon">▾</span>
+                </button>
+                <div class="faq-answer">
+                    يمكنك التواصل مع المطورين مباشرة عبر حساباتهم في انستقرام أو المحاولة مرة أخرى لاحقاً.
+                </div>
+            </div>
+        </main>
+
+        <section class="support-footer">
+            <h3>هل تحتاج إلى مزيد من المساعدة؟</h3>
+            <p>
+                إذا كنت تواجه مشاكل أخرى لم يتم ذكرها، يرجى التواصل مع فريق الدعم الفني:
+                <a href="https://instagram.com/h5px_" target="_blank">هيثم</a> أو
+                <a href="https://www.instagram.com/b82_1/" target="_blank">أيمن</a>
+                عبر انستقرام.
+            </p>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            &copy; 2026 ClousX Inc. جميع الحقوق محفوظة.
+        </div>
+    </footer>
+
+    <!-- AI Chat Widget Structure -->
+    <div class="ai-widget-container">
+        <button class="ai-fab" id="aiBtn">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+
+        <div class="ai-chat-window" id="aiWindow">
+            <div class="ai-header">
+                <div class="ai-handle" id="aiHandle"></div>
+                <div class="header-brand">
+                    ClousX<span class="logo-p">.</span>
+                </div>
+            </div>
+            <div class="ai-messages" id="aiMessages" data-lenis-prevent>
+                <div class="message ai">
+                    أهلاً بك في دعم ClousX! 👋<br>أنا نظام الدعم الآلي، اختر ما تحتاج للمساعدة فيه:
+                    <div class="qa-options" id="qaInitial">
+                        <button class="qa-btn" data-qa="how">كيف أحصل على يوزر ثلاثي؟</button>
+                        <button class="qa-btn" data-qa="limit">ما هو حد الاستخدام (الرشق)؟</button>
+                        <button class="qa-btn" data-qa="contact">كيف أتواصل مع المطورين؟</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ai-input-area">
+                <div class="ai-input-wrapper">
+                    <input type="text" class="ai-input" id="aiInput" placeholder="اكتب سؤالك هنا..." autocomplete="off">
+                    <button class="ai-send" id="aiSend">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+
+    <script>
+        // --- Smooth Scroll System ---
+        const SmartScroll = {
+            init() {
+                if (typeof Lenis === 'undefined') return;
+
+                const lenis = new Lenis({
+                    duration: 1.2,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    direction: 'vertical',
+                    gestureDirection: 'vertical',
+                    smooth: true,
+                    mouseMultiplier: 1,
+                    smoothTouch: true,
+                    touchMultiplier: 2,
+                });
+
+                const raf = (time) => {
+                    lenis.raf(time);
+                    requestAnimationFrame(raf);
+                }
+                requestAnimationFrame(raf);
+
+                // Navbar Logic
+                const navbar = document.querySelector('.navbar');
+                window.addEventListener('scroll', () => {
+                    navbar.classList.toggle('scrolled', window.scrollY > 50);
+                });
+            }
+        };
+
+        // --- FAQ Accordion System ---
+        const AccordionSystem = {
+            init() {
+                document.querySelectorAll('.faq-question').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const item = button.parentElement;
+                        const isActive = item.classList.contains('active');
+
+                        // Close all
+                        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+
+                        // Toggle current
+                        if (!isActive) item.classList.add('active');
+                    });
+                });
+            }
+        };
+
+        // --- Smart Search Engine ---
+        class SearchEngine {
+            constructor() {
+                this.input = document.getElementById('faqSearch');
+                this.items = document.querySelectorAll('.faq-item');
+                this.noResults = document.getElementById('noResults');
+
+                if (!this.input) return;
+
+                // Index content specifically for search
+                this.searchIndex = Array.from(this.items).map(item => {
+                    // Target the text wrapper specifically
+                    const qElem = item.querySelector('.q-text');
+                    const aElem = item.querySelector('.faq-answer');
+
+                    return {
+                        element: item,
+                        qElem: qElem,
+                        aElem: aElem,
+                        originalQ: qElem.innerHTML,
+                        originalA: aElem.innerHTML,
+                        qText: this.normalize(qElem.textContent),
+                        aText: this.normalize(aElem.textContent)
+                    };
+                });
+
+                this.bindEvents();
+            }
+
+            normalize(text) {
+                return text
+                    .replace(/[أإآ]/g, 'ا')
+                    .replace(/ة/g, 'ه')
+                    .replace(/ى/g, 'ي')
+                    .replace(/[ًٌٍَُِّ]/g, '')
+                    .toLowerCase()
+                    .trim();
+            }
+
+            bindEvents() {
+                this.input.addEventListener('input', (e) => this.performSearch(e.target.value));
+            }
+
+            performSearch(term) {
+                const normalizedTerm = this.normalize(term);
+                let hasMatches = false;
+
+                this.searchIndex.forEach(item => {
+                    const matchQ = item.qText.includes(normalizedTerm);
+                    const matchA = item.aText.includes(normalizedTerm);
+
+                    if (!normalizedTerm || matchQ || matchA) {
+                        item.element.style.display = 'block';
+                        hasMatches = true;
+
+                        if (normalizedTerm) {
+                            this.highlight(item.qElem, item.originalQ, term);
+                            this.highlight(item.aElem, item.originalA, term);
+                        } else {
+                            this.reset(item);
+                        }
+                    } else {
+                        item.element.style.display = 'none';
+                    }
+                });
+
+                this.noResults.style.display = (hasMatches || !normalizedTerm) ? 'none' : 'block';
+            }
+
+            highlight(element, originalHTML, term) {
+                if (!term) return;
+
+                const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escaped})`, 'gi');
+
+                // Now simple replacement is safe because we are inside a text wrapper 
+                // or the answer div, neither of which are flex containers spreading direct children.
+                element.innerHTML = originalHTML.replace(regex, '<span class="highlight">$1</span>');
+            }
+
+            reset(item) {
+                item.qElem.innerHTML = item.originalQ;
+                item.aElem.innerHTML = item.originalA;
+            }
+        }
+
+        // --- Local Support Chat ---
+        class SupportChat {
+            constructor() {
+                this.isOpen = false;
+                this.isTyping = false;
+
+                this.elements = {
+                    btn: document.getElementById('aiBtn'),
+                    window: document.getElementById('aiWindow'),
+                    handle: document.getElementById('aiHandle'),
+                    messages: document.getElementById('aiMessages'),
+                    input: document.getElementById('aiInput'),
+                    send: document.getElementById('aiSend')
+                };
+
+                this.responses = {
+                    'how': 'لا يمكن الحصول على يوزر رباعي أو ثلاثي مجاناً إلا عبر شرائهم. الصفحة الرئيسية تتيح لك توليد يوزرات شبه رباعية أو خماسية، وأي خدمة تدعي غير ذلك هي غالباً عملية نصب.',
+                    'limit': 'نظراً للضغط العالي، يسمح النظام بمحاولة واحدة كل 30 دقيقة لكل عنوان IP، لضمان جودة الخدمة وسرعة البحث للجميع.',
+                    'contact': 'يمكنك التواصل مع فريق العمل مباشرة عبر انستقرام:'
+                };
+
+                this.drag = {
+                    isDragging: false,
+                    startY: 0,
+                    startHeight: 0,
+                    standardHeight: window.innerHeight * 0.75,
+                    maxHeight: window.innerHeight * 0.92,
+                    minHeight: window.innerHeight * 0.4
+                };
+
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                this.elements.btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleWindow();
+                });
+
+                if (this.elements.handle) {
+                    this.elements.handle.addEventListener('touchstart', (e) => this.dragStart(e), { passive: false });
+                    window.addEventListener('touchmove', (e) => this.dragMove(e), { passive: false });
+                    window.addEventListener('touchend', () => this.dragEnd());
+                }
+
+                this.elements.window.addEventListener('click', (e) => e.stopPropagation());
+
+                document.addEventListener('click', () => {
+                    if (this.isOpen) this.toggleWindow(false);
+                });
+
+                // Listen for QA Button Clicks
+                this.elements.messages.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('qa-btn')) {
+                        this.handleQA(e.target.dataset.qa, e.target.innerText);
+                    }
+                });
+
+                this.elements.send.addEventListener('click', () => this.handleCustomMessage());
+                this.elements.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.handleCustomMessage();
+                });
+            }
+
+            toggleWindow(forceState) {
+                this.isOpen = (forceState !== undefined) ? forceState : !this.isOpen;
+                this.elements.window.classList.toggle('open', this.isOpen);
+
+                if (this.isOpen && window.innerWidth <= 480) {
+                    this.elements.window.style.height = `${this.drag.standardHeight}px`;
+                }
+
+                if (!this.isOpen) {
+                    setTimeout(() => {
+                        this.elements.window.style.height = '';
+                    }, 500);
+                }
+            }
+
+            async handleQA(id, questionText) {
+                if (this.isTyping) return;
+
+                // Add user question
+                this.addMessage(questionText, 'user');
+
+                const response = this.responses[id];
+                await this.showResponse(response, id === 'contact');
+            }
+
+            handleCustomMessage() {
+                const text = this.elements.input.value.trim();
+                if (!text || this.isTyping) return;
+
+                this.addMessage(text, 'user');
+                this.elements.input.value = '';
+
+                this.showResponse('عذراً، أنا نظام آلي محدود. يرجى اختيار أحد الأسئلة الجاهزة أو التواصل مع المطورين مباشرة للحصول على مساعدة أدق.');
+            }
+
+            async showResponse(text, showContacts = false) {
+                this.isTyping = true;
+                const loaderId = this.addLoader();
+                await new Promise(r => setTimeout(r, 600)); // Simulating thought
+                this.removeLoader(loaderId);
+
+                await this.typeMessage(text);
+
+                if (showContacts) {
+                    this.addContactButtons();
+                }
+
+                this.isTyping = false;
+            }
+
+            addContactButtons() {
+                const div = document.createElement('div');
+                div.className = 'contact-links';
+                div.innerHTML = `
+                    <a href="https://instagram.com/h5px_" target="_blank" class="contact-btn">
+                        <i class="fab fa-instagram"></i> المطور هيثم
+                    </a>
+                    <a href="https://www.instagram.com/b82_1/" target="_blank" class="contact-btn">
+                        <i class="fab fa-instagram"></i> الممول أيمن
+                    </a>
+                `;
+                this.elements.messages.appendChild(div);
+                this.scrollToBottom();
+            }
+
+            async typeMessage(text) {
+                const div = document.createElement('div');
+                div.className = 'message ai';
+                this.elements.messages.appendChild(div);
+
+                let currentText = '';
+                const chars = text.split('');
+                for (let char of chars) {
+                    currentText += char;
+                    div.innerHTML = currentText.replace(/\n/g, '<br>');
+                    this.scrollToBottom();
+                    await new Promise(r => setTimeout(r, 15));
+                }
+            }
+
+            addMessage(text, sender) {
+                const div = document.createElement('div');
+                div.className = `message ${sender}`;
+                div.innerHTML = text.replace(/\n/g, '<br>');
+                this.elements.messages.appendChild(div);
+                this.scrollToBottom();
+            }
+
+            addLoader() {
+                const id = 'loader-' + Date.now();
+                const div = document.createElement('div');
+                div.id = id;
+                div.className = 'typing-indicator';
+                div.innerHTML = '<div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>';
+                this.elements.messages.appendChild(div);
+                this.scrollToBottom();
+                return id;
+            }
+
+            removeLoader(id) {
+                const el = document.getElementById(id);
+                if (el) el.remove();
+            }
+
+            scrollToBottom() {
+                this.elements.messages.scrollTop = this.elements.messages.scrollHeight;
+            }
+
+            dragStart(e) {
+                if (window.innerWidth > 480) return;
+                this.drag.isDragging = true;
+                this.drag.startY = e.touches[0].clientY;
+                this.drag.startHeight = this.elements.window.offsetHeight;
+                this.elements.window.style.transition = 'none';
+            }
+
+            dragMove(e) {
+                if (!this.drag.isDragging) return;
+                const deltaY = this.drag.startY - e.touches[0].clientY;
+                let newHeight = this.drag.startHeight + deltaY;
+                if (newHeight > this.drag.maxHeight) newHeight = this.drag.maxHeight;
+                this.elements.window.style.height = `${newHeight}px`;
+                e.preventDefault();
+            }
+
+            dragEnd() {
+                if (!this.drag.isDragging) return;
+                this.drag.isDragging = false;
+                this.elements.window.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+                const currentHeight = this.elements.window.offsetHeight;
+                if (currentHeight < this.drag.minHeight) {
+                    this.toggleWindow(false);
+                } else if (currentHeight > (this.drag.standardHeight + (this.drag.maxHeight - this.drag.standardHeight) / 2)) {
+                    this.elements.window.style.height = `${this.drag.maxHeight}px`;
+                } else {
+                    this.elements.window.style.height = `${this.drag.standardHeight}px`;
+                }
+            }
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            SmartScroll.init();
+            AccordionSystem.init();
+            new SearchEngine();
+            new SupportChat();
+        });
+    </script>
+</body>
+
+</html>

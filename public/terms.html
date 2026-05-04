@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClousX | Terms</title>
+    <meta name="description" content="شروط استعمال منصة ClousX لمولد يوزرات انستقرام.">
+    <link rel="icon" type="image/png" href="https://clousx.web.app/assets/favicon.png">
+    <link rel="apple-touch-icon" href="https://clousx.web.app/assets/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0b;
+            --bg-darker: #050506;
+            --primary: #59e060;
+            --primary-glow: rgba(89, 224, 96, 0.15);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a5;
+            --surface: rgba(255, 255, 255, 0.04);
+            --surface-light: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.06);
+            --font-main: 'Cairo', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: auto;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            direction: rtl;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            height: auto;
+        }
+
+        /* Suble Grain Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.025;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- GOOGLE STYLE COMPONENTS --- */
+
+        /* --- HEADER --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: transparent;
+            padding: 25px 0;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border-bottom: 1px solid transparent;
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            direction: ltr;
+            justify-content: flex-start;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            direction: ltr;
+        }
+
+        .logo .dot {
+            color: var(--primary);
+            order: 2;
+            margin-left: 1px;
+            text-shadow: 0 0 15px rgba(89, 224, 96, 0.5);
+        }
+
+        /* Layout */
+        .g-container {
+            display: flex;
+            margin-top: 80px;
+            /* Adjusted for navbar padding */
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar - Right side for RTL */
+        .g-sidebar {
+            width: 280px;
+            border-left: 1px solid var(--border);
+            background: var(--bg-darker);
+            position: fixed;
+            top: 80px;
+            bottom: 0;
+            right: 0;
+            padding: 32px 20px;
+            overflow-y: auto;
+        }
+
+        .g-nav-section {
+            margin-bottom: 32px;
+        }
+
+        .g-nav-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            padding: 0 12px;
+            opacity: 0.6;
+        }
+
+        .g-nav-link {
+            display: block;
+            padding: 12px 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 2px;
+        }
+
+        .g-nav-link:hover {
+            background: var(--surface-light);
+            transform: translateX(-5px);
+        }
+
+        .g-nav-link.active {
+            background: var(--surface);
+            color: var(--primary);
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Table of Contents - Left side */
+        .g-toc {
+            width: 240px;
+            padding: 48px 24px;
+            position: fixed;
+            top: 80px;
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .g-toc-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .g-toc-link {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: 0.2s;
+            border-right: 2px solid transparent;
+            padding-right: 12px;
+        }
+
+        .g-toc-link:hover,
+        .g-toc-link.active {
+            color: var(--primary);
+            border-right-color: var(--primary);
+        }
+
+        /* Content Area */
+        .g-content {
+            flex: 1;
+            margin-right: 280px;
+            margin-left: 240px;
+            padding: 64px 5%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .g-article {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* Breadcrumbs inside content */
+        .content-breadcrumbs {
+            display: flex;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .g-article h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .g-status-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+        }
+
+        /* Typography & Structure */
+        .g-section {
+            margin-bottom: 64px;
+            scroll-margin-top: 100px;
+        }
+
+        .g-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+
+        .g-section p {
+            font-size: 1.15rem;
+            color: #c9d1d9;
+            margin-bottom: 20px;
+            line-height: 1.9;
+        }
+
+        .g-list {
+            list-style: none;
+            margin-right: 12px;
+        }
+
+        .g-list li {
+            position: relative;
+            padding-right: 32px;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            color: #c9d1d9;
+        }
+
+        .g-list li::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 12px;
+            width: 10px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .g-callout {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .g-callout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .g-callout h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        /* Was this helpful? */
+        .g-feedback {
+            margin-top: 80px;
+            border-top: 1px solid var(--border);
+            padding-top: 40px;
+            text-align: center;
+        }
+
+        .g-feedback p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+        }
+
+        .g-feedback-btns {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .feedback-btn {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 32px;
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-btn:hover {
+            background: var(--surface);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .footer-action-link {
+            display: block;
+            margin-top: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        .footer-action-link:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        /* Final Content Footer */
+        .g-content-footer {
+            margin-top: 60px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .g-toc {
+                display: none;
+            }
+
+            .g-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .g-sidebar {
+                display: none;
+            }
+
+            .g-content {
+                margin-right: 0;
+                padding: 40px 24px;
+            }
+
+
+            .navbar {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+            .nav-container {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========== SITE CLOSED OVERLAY ========== -->
+    <div id="site-closed"
+        style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:#0b0c10;font-family:'Cairo',sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;direction:rtl;background-image:radial-gradient(circle at 25% 50%,rgba(89,224,96,0.06) 0%,transparent 45%),linear-gradient(180deg,#0b0c10 0%,#050608 100%);">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap');
+
+            html,
+            body {
+                overflow: hidden !important;
+                height: 100% !important;
+                touch-action: none !important;
+                overscroll-behavior: none !important;
+            }
+
+            body *:not(#site-closed):not(#site-closed *) {
+                pointer-events: none !important;
+                user-select: none !important;
+            }
+
+            #site-closed,
+            #site-closed * {
+                pointer-events: auto !important;
+            }
+
+            #site-closed::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 500px;
+                height: 500px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(89, 224, 96, 0.12) 0%, transparent 70%);
+                filter: blur(60px);
+                animation: glowPulse 4s ease-in-out infinite;
+            }
+
+            @keyframes glowPulse {
+
+                0%,
+                100% {
+                    opacity: 0.4;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+
+                50% {
+                    opacity: 0.9;
+                    transform: translate(-50%, -50%) scale(1.15);
+                }
+            }
+        </style>
+        <div style="position:relative;z-index:2;padding:20px;max-width:600px;">
+            <div style="font-size:2rem;font-weight:700;color:#fff;margin-bottom:25px;direction:ltr;">ClousX<span
+                    style="color:#59e060;">.</span></div>
+            <h1 style="font-size:2.5rem;font-weight:800;color:#fff;margin:0 0 20px 0;line-height:1.3;">الموقع <span
+                    style="color:#59e060;">مغلق</span></h1>
+            <p style="color:#9ca3af;font-size:1.1rem;line-height:1.8;margin:0;">الموقع مغلق حتى إشعار آخر<br>شكراً
+                لتفهمكم</p>
+        </div>
+    </div>
+    <!-- ========== END OVERLAY ========== -->
+
+
+    <!-- Standard Unified Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">ClousX<span class="dot">.</span></a>
+        </div>
+    </nav>
+
+    <div class="g-container">
+        <!-- Main Navigation Sidebar -->
+        <aside class="g-sidebar">
+            <div class="g-nav-section">
+                <span class="g-nav-title">الإرشادات القانونية</span>
+                <a href="#intro" class="g-nav-link active">مقدمة المنصة</a>
+                <a href="#usage" class="g-nav-link">سياسة الاستخدام</a>
+                <a href="#privacy" class="g-nav-link">الخصوصية والبيانات</a>
+            </div>
+            <div class="g-nav-section">
+                <span class="g-nav-title">الملكية والمسؤولية</span>
+                <a href="#intellectual" class="g-nav-link">حقوق الملكية</a>
+                <a href="#disclaimer" class="g-nav-link">إخلاء المسؤولية</a>
+                <a href="#adsense" class="g-nav-link">سياسة الإعلانات</a>
+            </div>
+            <div class="g-nav-section" style="margin-top: auto; padding-top: 40px;">
+                <span class="g-nav-title">روابط مفيدة</span>
+                <a href="#" class="g-nav-link">الأسئلة الشائعة</a>
+                <a href="Contact.html" class="g-nav-link">تواصل معنا</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="g-content">
+            <article class="g-article">
+                <div class="content-breadcrumbs">
+                    <span>السياسات</span> / <span>بنود الخدمة</span>
+                </div>
+
+                <h1>بنود الخدمة</h1>
+
+                <div class="g-status-info">
+                    <span>رقم المراجعة: <strong>v2.0.1</strong></span>
+                    <span>آخر تحديث: <strong>31 ديسمبر 2025</strong></span>
+                    <span style="color: var(--primary);">● نشط</span>
+                </div>
+
+                <section id="intro" class="g-section">
+                    <h2>مقدمة المنصة</h2>
+                    <p>أهلاً بك في منصة ClousX للحلول الرقمية. نحن نلتزم بتوفير بيئة آمنة وشفافة لجميع المستخدمين.
+                        استخدامك لهذه المنصة يعني اطلاعك الكامل وموافقتك على كافة البنود الواردة في هذه الوثيقة.</p>
+                </section>
+
+                <section id="usage" class="g-section">
+                    <h2>سياسة الاستخدام العادل</h2>
+                    <p>للحفاظ على جودة الخدمة وضمان سرعة الاستجابة لجميع المستخدمين، يتوجب عليك الالتزام بالمعايير
+                        التقنية التالية:</p>
+                    <ul class="g-list">
+                        <li>يمنع استخدام أي أدوات أتمتة أو "بوتات" لسحب البيانات من الموقع.</li>
+                        <li>يقتصر توليد الأسماء على طلب واحد ناجح كل 30 دقيقة لكل جهاز.</li>
+                        <li>أي محاولة للتلاعب بنظام التحقق ستؤدي لحظر الوصول الفني فوراً.</li>
+                    </ul>
+                </section>
+
+                <div class="g-callout">
+                    <h3>لماذا نطبق الشروط؟</h3>
+                    <p>نحن نقوم بتطبيق هذه القواعد لضمان أن كل مستخدم يحصل على فرصة عادلة في توليد اليوزرات النادرة،
+                        ولحماية خوارزمياتنا من الضغط غير المبرر.</p>
+                </div>
+
+                <section id="privacy" class="g-section">
+                    <h2>الخصوصية والبيانات</h2>
+                    <p>نحن لا نقوم بجمع معلومات شخصية مباشرة عنك (مثل الاسم أو رقم الهاتف). بياناتنا تقتصر على معلومات
+                        تقنية تشمل:</p>
+                    <ul class="g-list">
+                        <li>نوع المتصفح والجهاز المستخدم.</li>
+                        <li>التفاعلات التقنية مع أداة التوليد.</li>
+                        <li>عنوان الـ IP لأغراض أمنية محددة بمدة زمنية.</li>
+                    </ul>
+                </section>
+
+                <section id="intellectual" class="g-section">
+                    <h2>حقوق الملكية الفكرية</h2>
+                    <p>تعتبر كافة العلامات التجارية، الأكواد المصدرية، وخوارزميات التوليد ملكاً حصرياً لمنصة ClousX. لا
+                        يجوز استنساخ الفكرة أو اقتباس الكود المصدري دون إذن رسمي مكتوب من الإدارة القانونية.</p>
+                </section>
+
+                <section id="adsense" class="g-section">
+                    <h2>سياسة إعلانات الطرف الثالث</h2>
+                    <p>نحن نعتمد في تشغيل الموقع على خدمات إعلانية مثل Google AdSense. هؤلاء الشركاء يستخدمون ملفات
+                        تعريف الارتباط (Cookies) لتقديم محتوى إعلاني يناسب اهتماماتك. يمكنك التحكم في ذلك عبر إعدادات
+                        متصفحك أو حساب Google الخاص بك.</p>
+                </section>
+
+                <section id="disclaimer" class="g-section">
+                    <h2>إخلاء المسؤولية القانونية</h2>
+                    <p>منصة ClousX هي أداة مساعدة فنية وليست جهة تسجيل رسمية. نحن نقترح الأسماء بناءً على خوارزميات،
+                        وتظل
+                        مسؤولية التأكد من ملاءمة الاسم سياسات الطرف الثالث (Instagram) على عاتق المستخدم.</p>
+                </section>
+
+                <div class="g-feedback">
+                    <p>هل كانت هذه المعلومات مفيدة؟</p>
+                    <div class="g-feedback-btns">
+                        <button class="feedback-btn" onclick="this.innerHTML='شكراً لك!';">نعم</button>
+                        <button class="feedback-btn" onclick="this.innerHTML='شكراً لك!';">لا</button>
+                    </div>
+                    <a href="index.html" class="footer-action-link">العودة للصفحة الرئيسية &larr;</a>
+                </div>
+
+                <div class="g-content-footer" style="justify-content: center; opacity: 0.5;">
+                    <span>&copy; 2026 ClousX Inc. جميع الحقوق محفوظة.</span>
+                </div>
+            </article>
+        </main>
+
+        <!-- Table of Contents Sidebar (Left) -->
+        <aside class="g-toc">
+            <div class="g-toc-title">في هذه الصفحة</div>
+            <a href="#intro" class="g-toc-link active">مقدمة المنصة</a>
+            <a href="#usage" class="g-toc-link">سياسة الاستخدام</a>
+            <a href="#privacy" class="g-toc-link">الخصوصية والبيانات</a>
+            <a href="#intellectual" class="g-toc-link">حقوق الملكية</a>
+            <a href="#adsense" class="g-toc-link">سياسة الإعلانات</a>
+            <a href="#disclaimer" class="g-toc-link">إخلاء المسؤولية</a>
+        </aside>
+    </div>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
+
+    <script>
+        // --- Smooth Scroll (Lenis) ---
+        const SmoothScroll = {
+            lenis: null,
+            init() {
+                if (typeof Lenis === 'undefined') return;
+                this.lenis = new Lenis({
+                    duration: 1.2,
+                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                    direction: 'vertical',
+                    gestureDirection: 'vertical',
+                    smooth: true,
+                    mouseMultiplier: 1,
+                    smoothTouch: true,
+                    touchMultiplier: 2,
+                });
+
+                function raf(time) {
+                    SmoothScroll.lenis.raf(time);
+                    requestAnimationFrame(raf);
+                }
+                requestAnimationFrame(raf);
+
+                // Handle Anchor Links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = anchor.getAttribute('href').substring(1);
+                        const target = document.getElementById(targetId);
+                        if (target) this.lenis.scrollTo(target);
+                    });
+                });
+            }
+        };
+        SmoothScroll.init();
+
+        const sections = document.querySelectorAll('.g-section');
+        const tocLinks = document.querySelectorAll('.g-toc-link');
+        const sidebarLinks = document.querySelectorAll('.g-nav-link');
+        const navbar = document.querySelector('.navbar');
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            const updateActive = (links) => {
+                links.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+
+            updateActive(tocLinks);
+            updateActive(sidebarLinks);
+        });
+    </script>
+</body>
+
+</html>
