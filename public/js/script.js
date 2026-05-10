@@ -13,7 +13,7 @@ const CONFIG = {
     API_URL: 'https://web-production-2b42b.up.railway.app/search',
     IP_API_URL: 'https://api.ipify.org?format=json',
     SEARCH_TIMEOUT_SEC: 30,
-    RATE_LIMIT_MS: 30 * 60 * 1000, // 30 minutes
+    RATE_LIMIT_MS: 24 * 60 * 60 * 1000, // 24 hours
     TOAST_DURATION_MS: 3000,
     COPY_TOAST_DURATION_MS: 2000,
     FIREBASE_TIMEOUT_MS: 2000,
@@ -83,8 +83,13 @@ const Utils = {
     },
 
     formatTime(ms) {
-        const mins = Math.floor(ms / 60000);
+        const hours = Math.floor(ms / 3600000);
+        const mins = Math.floor((ms % 3600000) / 60000);
         const secs = Math.floor((ms % 60000) / 1000);
+
+        if (hours > 0) {
+            return `${hours}:${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
         return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     },
 
@@ -136,13 +141,15 @@ const Scroll = {
 };
 
 /* ==============================================
-   FINGERPRINT MODULE (Anti-Fraud)
+   FINGERPRINT MODULE (Anti-Fraud) - Enhanced v2.0
+   Multi-layer hardware fingerprinting that persists
+   across Chrome profiles, Incognito, and browser resets.
    ============================================== */
 
 const Fingerprint = {
     /**
      * Generate a unique Canvas Fingerprint hash.
-     * This is nearly 100% unique per device based on GPU, fonts, and rendering.
+     * Same across all browser profiles on the same device (GPU-based).
      */
     generateCanvasHash() {
         try {
@@ -151,7 +158,6 @@ const Fingerprint = {
             canvas.width = 200;
             canvas.height = 50;
 
-            // Draw text with specific styling
             ctx.textBaseline = 'top';
             ctx.font = '14px Arial';
             ctx.fillStyle = '#f60';
@@ -161,13 +167,120 @@ const Fingerprint = {
             ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
             ctx.fillText('ClousX-FP-2026', 4, 17);
 
-            // Get image data and hash it
             const dataUrl = canvas.toDataURL();
             return this.hashString(dataUrl);
         } catch (e) {
             console.warn('Canvas fingerprint failed:', e);
             return null;
         }
+    },
+
+    /**
+     * Generate WebGL fingerprint - GPU-specific.
+     * Identical across all Chrome profiles on the same hardware.
+     */
+    generateWebGLHash() {
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) return null;
+
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : '';
+            const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : '';
+
+            const params = [
+                renderer, vendor,
+                gl.getParameter(gl.MAX_TEXTURE_SIZE),
+                gl.getParameter(gl.MAX_VERTEX_ATTRIBS),
+                gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
+                gl.getParameter(gl.MAX_VARYING_VECTORS),
+                gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
+                gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
+                String(gl.getParameter(gl.ALIASED_LINE_WIDTH_RANGE)),
+                String(gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)),
+                (gl.getSupportedExtensions() || []).join(',')
+            ].join('|');
+
+            return this.hashString(params);
+        } catch (e) {
+            console.warn('WebGL fingerprint failed:', e);
+            return null;
+        }
+    },
+
+    /**
+     * Generate AudioContext fingerprint - audio hardware-specific.
+     * Identical across all browser profiles on the same device.
+     */
+    generateAudioHash() {
+        try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+
+            const ctx = new AC();
+            const analyser = ctx.createAnalyser();
+
+            const audioData = [
+                ctx.sampleRate,
+                ctx.destination.maxChannelCount,
+                ctx.destination.numberOfInputs,
+                ctx.destination.numberOfOutputs,
+                ctx.destination.channelCount,
+                ctx.destination.channelCountMode,
+                ctx.destination.channelInterpretation,
+                analyser.fftSize,
+                analyser.frequencyBinCount,
+                analyser.minDecibels,
+                analyser.maxDecibels,
+                analyser.smoothingTimeConstant,
+            ].join('|');
+
+            ctx.close();
+            return this.hashString(audioData);
+        } catch (e) {
+            console.warn('Audio fingerprint failed:', e);
+            return null;
+        }
+    },
+
+    /**
+     * Get hardware signals that NEVER change across browser profiles.
+     */
+    getHardwareSignals() {
+        return {
+            cores: navigator.hardwareConcurrency || 0,
+            memory: navigator.deviceMemory || 0,
+            maxTouchPoints: navigator.maxTouchPoints || 0,
+            colorDepth: screen.colorDepth,
+            pixelRatio: window.devicePixelRatio || 1,
+        };
+    },
+
+    /**
+     * Generate a composite Device ID from ALL hardware signals.
+     * This is the master fingerprint - nearly impossible to fake
+     * without changing actual hardware.
+     */
+    generateDeviceId() {
+        const canvas = this.generateCanvasHash();
+        const webgl = this.generateWebGLHash();
+        const audio = this.generateAudioHash();
+        const hw = this.getHardwareSignals();
+
+        const composite = [
+            canvas || 'x',
+            webgl || 'x',
+            audio || 'x',
+            hw.cores,
+            hw.memory,
+            hw.colorDepth,
+            hw.pixelRatio,
+            screen.width + 'x' + screen.height,
+            hw.maxTouchPoints
+        ].join('::');
+
+        return this.hashString(composite);
     },
 
     /**
@@ -183,52 +296,148 @@ const Fingerprint = {
     },
 
     /**
-     * Generate full fingerprint object
+     * Generate full fingerprint object (enhanced v2.0)
      */
     generate() {
+        const hw = this.getHardwareSignals();
         return {
             canvasHash: this.generateCanvasHash(),
+            webglHash: this.generateWebGLHash(),
+            audioHash: this.generateAudioHash(),
+            deviceId: this.generateDeviceId(),
             userAgent: navigator.userAgent,
             language: navigator.language,
             platform: navigator.platform,
             screenSize: `${window.screen.width}x${window.screen.height}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            cores: hw.cores,
+            memory: hw.memory,
+            colorDepth: hw.colorDepth,
+            pixelRatio: hw.pixelRatio,
+            maxTouchPoints: hw.maxTouchPoints,
         };
     },
 
     /**
-     * Check if two fingerprints match (same person)
-     * Primary: Canvas hash (100% match = same device)
-     * Fallback: 3+ matching fields = likely same person
+     * Check if two fingerprints match (same device).
+     * Multi-layer detection - extremely hard to bypass.
+     *
+     * Layer 1: Composite Device ID (all hardware combined)
+     * Layer 2: Canvas hash (GPU rendering)
+     * Layer 3: WebGL hash (GPU info)
+     * Layer 4: Multi-signal fallback (5+ of 11 fields)
      */
     match(stored, current) {
-        // Primary check: Canvas hash is definitive
+        // Layer 1: Composite Device ID - definitive
+        if (stored.deviceId && current.deviceId && stored.deviceId === current.deviceId) {
+            return true;
+        }
+
+        // Layer 2: Canvas hash - GPU-based, definitive
         if (stored.canvasHash && current.canvasHash && stored.canvasHash === current.canvasHash) {
             return true;
         }
 
-        // Fallback: Count matching fields
+        // Layer 3: WebGL hash - GPU-specific, definitive
+        if (stored.webglHash && current.webglHash && stored.webglHash === current.webglHash) {
+            return true;
+        }
+
+        // Layer 4: Multi-signal fallback
         let matches = 0;
-        const fields = ['userAgent', 'platform', 'screenSize', 'timezone', 'language'];
+        const fields = [
+            'userAgent', 'platform', 'screenSize', 'timezone', 'language',
+            'cores', 'memory', 'colorDepth', 'pixelRatio', 'maxTouchPoints',
+            'audioHash'
+        ];
 
         for (const field of fields) {
-            if (stored[field] && current[field] && stored[field] === current[field]) {
+            if (stored[field] && current[field] && String(stored[field]) === String(current[field])) {
                 matches++;
             }
         }
 
-        // 3+ matches = likely same person
-        return matches >= 3;
+        // 5+ of 11 signals match = very likely same device
+        return matches >= 5;
     },
 
     /**
-     * Search Firebase for existing account with matching fingerprint
-     * Returns the matching user data or null
+     * FAST: Check device fingerprint index in Firebase (O(1) lookup).
+     * Uses device_fingerprints/{hash} -> userId mapping.
+     */
+    async findByDeviceIndex(hashKey) {
+        if (!Firebase.db || !hashKey) return null;
+        try {
+            const ref = Firebase.db.ref('device_fingerprints/' + hashKey);
+            const snapshot = await ref.once('value');
+            if (!snapshot.exists()) return null;
+
+            const userId = snapshot.val();
+            const userData = await Firebase.getUserData(userId);
+            if (!userData) {
+                // Stale index - user was deleted, clean up
+                ref.remove();
+                return null;
+            }
+            return { userId, userData };
+        } catch (error) {
+            console.error('Device index lookup error:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Save device fingerprint indexes for fast future lookups.
+     * Stores multiple hash keys pointing to the same userId.
+     */
+    async saveDeviceIndex(fingerprint, userId) {
+        if (!Firebase.db) return;
+        try {
+            const updates = {};
+            if (fingerprint.deviceId) {
+                updates['device_fingerprints/' + fingerprint.deviceId] = userId;
+            }
+            if (fingerprint.canvasHash) {
+                updates['device_fingerprints/' + fingerprint.canvasHash] = userId;
+            }
+            if (fingerprint.webglHash) {
+                updates['device_fingerprints/' + fingerprint.webglHash] = userId;
+            }
+            if (fingerprint.audioHash) {
+                updates['device_fingerprints/' + fingerprint.audioHash] = userId;
+            }
+
+            if (Object.keys(updates).length > 0) {
+                await Firebase.db.ref().update(updates);
+            }
+        } catch (error) {
+            console.error('Error saving device index:', error);
+        }
+    },
+
+    /**
+     * Search Firebase for existing account with matching fingerprint.
+     * Uses fast O(1) index first, then falls back to full scan
+     * for legacy accounts that don't have an index yet.
      */
     async findExistingAccount(currentFingerprint) {
         if (!Firebase.db) return null;
 
         try {
+            // === FAST PATH: O(1) index lookups ===
+            const indexKeys = [
+                currentFingerprint.deviceId,
+                currentFingerprint.canvasHash,
+                currentFingerprint.webglHash,
+                currentFingerprint.audioHash
+            ].filter(Boolean);
+
+            for (const key of indexKeys) {
+                const result = await this.findByDeviceIndex(key);
+                if (result) return result;
+            }
+
+            // === SLOW PATH: Full scan (for legacy accounts without index) ===
             const usersRef = Firebase.db.ref('users');
             const snapshot = await usersRef.once('value');
             const users = snapshot.val();
@@ -236,11 +445,13 @@ const Fingerprint = {
             if (!users) return null;
 
             for (const [userId, userData] of Object.entries(users)) {
-                // Skip if no fingerprint data
-                if (!userData.canvasHash && !userData.userAgent) continue;
+                // Skip if no fingerprint data at all
+                if (!userData.canvasHash && !userData.userAgent && !userData.deviceId) continue;
 
-                // Check for match
+                // Check for match using multi-layer detection
                 if (this.match(userData, currentFingerprint)) {
+                    // Backfill index for faster future lookups
+                    this.saveDeviceIndex(currentFingerprint, userId);
                     return { userId, userData };
                 }
             }
@@ -248,7 +459,7 @@ const Fingerprint = {
             return null;
         } catch (error) {
             console.error('Error searching for existing account:', error);
-            return null;
+            throw error; // Re-throw so caller knows the check failed
         }
     }
 };
@@ -349,9 +560,16 @@ const Firebase = {
     async logRating(ratingData) {
         if (!this.db) return;
         try {
+            // 1. Save globally in 'ratings' folder (for general statistics)
             const ratingsRef = this.db.ref('ratings');
             const newRatingRef = ratingsRef.push();
             await newRatingRef.set(ratingData);
+
+            // 2. Save inside the specific User's folder (for organized user history)
+            if (ratingData.raterId && ratingData.raterId !== 'anonymous') {
+                const userRatingRef = this.db.ref(`users/${ratingData.raterId}/ratings/${newRatingRef.key}`);
+                await userRatingRef.set(ratingData);
+            }
         } catch (error) {
             console.error('Error logging rating:', error);
         }
@@ -409,10 +627,17 @@ const Firebase = {
         });
     },
 
+    _userSubRef: null, // Track active user subscription for cleanup
+
     subscribeToUser(userId, callback) {
         if (!this.db || !userId) return;
-        const ref = this.db.ref('users/' + userId);
-        ref.on('value', (snapshot) => {
+        // Unsubscribe from previous listener to prevent conflicts
+        if (this._userSubRef) {
+            this._userSubRef.off();
+            this._userSubRef = null;
+        }
+        this._userSubRef = this.db.ref('users/' + userId);
+        this._userSubRef.on('value', (snapshot) => {
             const val = snapshot.val();
             callback(val);
         });
@@ -630,6 +855,7 @@ const UI = {
 
     unlockCard() {
         const searchCard = DOM.get('searchCard');
+        const lockScreen = DOM.get('lockScreen');
         const searchBtn = DOM.get('searchBtn');
         const statusText = DOM.get('statusText');
         const userAccountIcon = DOM.get('userAccountIcon');
@@ -638,7 +864,24 @@ const UI = {
         const dropdownUsername = DOM.get('dropdownUsername');
 
         if (searchCard) searchCard.classList.remove('locked');
-        if (searchBtn) searchBtn.disabled = false;
+        if (lockScreen) lockScreen.classList.remove('active');
+        
+        // CRITICAL FIX: Only unlock button if NOT rate limited
+        if (searchBtn) {
+            let isRateLimited = false;
+            if (State.userData && State.userData.lastUsage) {
+                if (Date.now() - State.userData.lastUsage < CONFIG.RATE_LIMIT_MS) {
+                    isRateLimited = true;
+                }
+            }
+            if (!isRateLimited) {
+                searchBtn.disabled = false;
+            }
+        }
+        
+        // Hide Terms Modal if it's still open
+        this.hideTermsModal();
+
         if (statusText) statusText.textContent = 'سيتم البحث عن يوزرات شبه رباعية متاحة';
 
         // Update dropdown username
@@ -721,8 +964,10 @@ const UI = {
             outputValue.classList.add('found');
         }
 
-        // Enable rating label (Check persistence)
-        const lastRated = localStorage.getItem('clousx_last_rated_user');
+        // Enable rating label (Check persistence from Firebase AND localStorage)
+        const lastRatedLocal = localStorage.getItem('clousx_last_rated_user');
+        const lastRatedFirebase = State.userData?.lastRatedUsername;
+        const lastRated = lastRatedLocal || lastRatedFirebase;
 
         if (ratingLabel) {
             if (lastRated === username) {
@@ -755,12 +1000,12 @@ const UI = {
                 el.classList.add('stat-fading');
                 setTimeout(() => el.classList.remove('stat-fading'), 400);
             }
-            
+
             // To animate initial load, render '0's of the same length
             // Replace non-numeric chars with '0' as well so animation is uniform
             const dummyStr = newValue.replace(/[0-9]/g, '0');
             this.renderFullNumber(el, dummyStr);
-            
+
             // Wait slightly so DOM registers the dummy string, then animate to target
             setTimeout(() => {
                 this.animateTicker(elementId, newValueRaw);
@@ -975,9 +1220,16 @@ const UI = {
                 ratingLabel.classList.add('disabled');
                 State.hasRatedCurrent = true;
 
-                // Persist rated state for this username
+                // Persist rated state locally AND in Firebase
                 if (State.currentUsername) {
                     localStorage.setItem('clousx_last_rated_user', State.currentUsername);
+
+                    // Save to Firebase so it syncs across profiles/incognito
+                    if (State.userId && Firebase.db) {
+                        Firebase.updateUserData(State.userId, {
+                            lastRatedUsername: State.currentUsername
+                        });
+                    }
                 }
             }
 
@@ -1332,31 +1584,42 @@ const Search = {
         const searchBtn = DOM.get('searchBtn');
         const statusText = DOM.get('statusText');
 
-        // Local rate limit check
-        if (State.userData?.lastUsage) {
-            const timePassed = Date.now() - State.userData.lastUsage;
-            if (timePassed < CONFIG.RATE_LIMIT_MS) {
-                Auth.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
-                return;
-            }
-        }
-
         if (searchBtn) {
             searchBtn.disabled = true;
             statusText.textContent = 'التحقق من البيانات...';
         }
 
-        // Verify user still exists in Firebase
+        // === FRESH user data check from Firebase (don't trust local State) ===
         if (State.userId && Firebase.db) {
             try {
-                const userData = await Firebase.getUserData(State.userId);
-                if (!userData) {
+                const freshUserData = await Firebase.getUserData(State.userId);
+                if (!freshUserData) {
                     localStorage.removeItem('clousx_is_registered');
                     UI.lockCard();
                     return;
                 }
+
+                // Update local state with fresh data
+                State.userData = freshUserData;
+
+                // Check rate limit from fresh data
+                if (freshUserData.lastUsage) {
+                    const timePassed = Date.now() - freshUserData.lastUsage;
+                    if (timePassed < CONFIG.RATE_LIMIT_MS) {
+                        Auth.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
+                        return;
+                    }
+                }
             } catch (error) {
-                console.error('Verification error:', error);
+                console.error('User verification error:', error);
+                // Fallback: use cached State.userData
+                if (State.userData?.lastUsage) {
+                    const timePassed = Date.now() - State.userData.lastUsage;
+                    if (timePassed < CONFIG.RATE_LIMIT_MS) {
+                        Auth.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
+                        return;
+                    }
+                }
             }
         }
 
@@ -1516,15 +1779,30 @@ const Auth = {
 
         UI.hideTermsModal();
 
+        // Generate enhanced multi-layer fingerprint
+        const fp = Fingerprint.generate();
+
         const browserInfo = {
             username: username,
             password: password, // Note: Storing as plain text per user request (Client-side usage)
-            canvasHash: Fingerprint.generateCanvasHash(), // Anti-fraud fingerprint
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            screenSize: `${window.screen.width}x${window.screen.height}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            // Core hardware fingerprints (persist across Chrome profiles)
+            canvasHash: fp.canvasHash,
+            webglHash: fp.webglHash,
+            audioHash: fp.audioHash,
+            deviceId: fp.deviceId,
+            // Browser info
+            userAgent: fp.userAgent,
+            language: fp.language,
+            platform: fp.platform,
+            screenSize: fp.screenSize,
+            timezone: fp.timezone,
+            // Hardware signals
+            cores: fp.cores,
+            memory: fp.memory,
+            colorDepth: fp.colorDepth,
+            pixelRatio: fp.pixelRatio,
+            maxTouchPoints: fp.maxTouchPoints,
+            // Metadata
             registeredAt: Date.now()
         };
 
@@ -1541,11 +1819,12 @@ const Auth = {
             return;
         }
 
-        // NON-CRITICAL: UI Enhancements & Stats
+        // NON-CRITICAL: UI Enhancements, Stats & Device Index
         try {
-            // UI.showToast('regToast'); // Removed per user request
             UI.highlightSearchCard(); // Pulse animation and scroll
             Firebase.incrementStats('users'); // Increment User Count
+            // Save device fingerprint indexes for fast O(1) future lookups
+            Fingerprint.saveDeviceIndex(fp, State.userId);
         } catch (uiError) {
             console.warn('Registration UI Error (Ignored):', uiError);
             // Do not alert the user, registration was successful
@@ -1613,6 +1892,29 @@ const Auth = {
         State.countdownInterval = setInterval(update, 1000);
     },
 
+    clearCountdown() {
+        if (State.countdownInterval) {
+            clearInterval(State.countdownInterval);
+            State.countdownInterval = null;
+        }
+        const searchBtn = DOM.get('searchBtn');
+        const isRegistered = localStorage.getItem('clousx_is_registered') === 'true';
+        
+        if (searchBtn && isRegistered) {
+            let isRateLimited = false;
+            if (State.userData && State.userData.lastUsage) {
+                if (Date.now() - State.userData.lastUsage < CONFIG.RATE_LIMIT_MS) {
+                    isRateLimited = true;
+                }
+            }
+            if (!isRateLimited) {
+                searchBtn.disabled = false;
+            }
+        }
+        
+        UI.updateStatusText('سيتم البحث عن يوزرات شبه رباعية متاحة');
+    },
+
     async resetUserData() {
         const outputValue = DOM.get('outputValue');
         const searchCard = DOM.get('searchCard');
@@ -1671,6 +1973,8 @@ const Auth = {
         }
     },
 
+
+
     async checkUserStatus() {
         try {
             UI.updateLoaderText("جاري المزامنة مع السحاب...");
@@ -1688,38 +1992,52 @@ const Auth = {
 
             UI.updateLoaderText("جاري فحص القيود...");
 
-            let isBlockedByIP = false;
+            let isRateLimited = false;
+            let timeRemaining = 0;
+            let lastFoundUser = null;
 
+            // 1. Process User Data first (to sync account state across profiles/incognito)
+            if (userData) {
+                UI.updateLoaderText("تم تأكيد الحساب.");
+                State.userData = userData;
+                localStorage.setItem('clousx_is_registered', 'true');
+                
+                if (userData.lastUsage) {
+                    const timePassed = Date.now() - userData.lastUsage;
+                    if (timePassed < CONFIG.RATE_LIMIT_MS) {
+                        isRateLimited = true;
+                        timeRemaining = CONFIG.RATE_LIMIT_MS - timePassed;
+                        lastFoundUser = userData.lastUsername;
+                    }
+                } else if (userData.lastUsername) {
+                    lastFoundUser = userData.lastUsername;
+                }
+
+                // Restore rating state
+                if (userData.lastRatedUsername) {
+                    State.hasRatedCurrent = true;
+                    localStorage.setItem('clousx_last_rated_user', userData.lastRatedUsername);
+                }
+            } else {
+                localStorage.removeItem('clousx_is_registered');
+                localStorage.removeItem('lastGeneratedUser');
+                UI.lockCard();
+            }
+
+            // 2. Process IP Restrictions (applies even if logged out)
             if (ipInfo) {
                 try {
                     const ipData = await Firebase.getIPRestriction(ipInfo.cleanIp);
-                    if (ipData) {
-                        const timePassed = Date.now() - (ipData.lastUsage || 0);
+                    if (ipData && ipData.lastUsage) {
+                        const timePassed = Date.now() - ipData.lastUsage;
                         if (timePassed < CONFIG.RATE_LIMIT_MS) {
-                            isBlockedByIP = true;
-
-                            // CRITICAL FIX: Do NOT unlock card just because IP is blocked.
-                            // Only show the countdown and last username. 
-                            // Access to search button remains restricted until login.
-
-                            // CRITICAL FIX: Only show countdown/username if registered locally.
-                            // If not registered (logged out), keep card clean/locked.
-                            const isRegistered = localStorage.getItem('clousx_is_registered') === 'true';
-
-                            if (isRegistered) {
-                                this.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
-
+                            const ipTimeRemaining = CONFIG.RATE_LIMIT_MS - timePassed;
+                            if (ipTimeRemaining > timeRemaining) {
+                                isRateLimited = true;
+                                timeRemaining = ipTimeRemaining;
                                 if (ipData.lastUsername) {
-                                    UI.displayUsername(ipData.lastUsername);
-                                    State.currentUsername = ipData.lastUsername;
-                                    localStorage.setItem('lastGeneratedUser', ipData.lastUsername);
+                                    lastFoundUser = ipData.lastUsername;
                                 }
-                                UI.unlockCard();
-                            } else {
-                                // If logged out, do NOTHING. 
-                                // Keep UI locked and clean (default state "اضغط للبدء").
-                                // The blockage will be re-checked when they try to register/login.
-                                UI.lockCard();
                             }
                         }
                     }
@@ -1728,26 +2046,26 @@ const Auth = {
                 }
             }
 
-            if (!isBlockedByIP) {
-                if (userData) {
-                    UI.updateLoaderText("تم تأكيد الحساب.");
-                    State.userData = userData;
-
-                    localStorage.setItem('clousx_is_registered', 'true');
-
-                    UI.unlockCard();
-                    this.checkRateLimit(userData);
-
-                    if (userData.lastUsername) {
-                        UI.displayUsername(userData.lastUsername);
-                        State.currentUsername = userData.lastUsername;
-                        localStorage.setItem('lastGeneratedUser', userData.lastUsername);
-                    }
+            // 3. Apply state
+            const isRegistered = localStorage.getItem('clousx_is_registered') === 'true';
+            
+            if (isRegistered) {
+                // Critical Fix: Unlock FIRST, then start countdown (which disables button)
+                UI.unlockCard();
+                
+                if (isRateLimited) {
+                    this.startCountdown(timeRemaining);
                 } else {
-                    localStorage.removeItem('clousx_is_registered');
-                    localStorage.removeItem('lastGeneratedUser');
-                    UI.lockCard();
+                    this.clearCountdown();
                 }
+
+                if (lastFoundUser) {
+                    UI.displayUsername(lastFoundUser);
+                    State.currentUsername = lastFoundUser;
+                    localStorage.setItem('lastGeneratedUser', lastFoundUser);
+                }
+            } else {
+                UI.lockCard();
             }
         } catch (error) {
             console.error('Critical Sync Error:', error);
@@ -2219,8 +2537,8 @@ const Events = {
                 } catch (error) {
                     console.error('Fingerprint check error:', error);
                     startRegisterBtn.classList.remove('loading');
-                    // On error, proceed normally
-                    animateStepTransition(termsStep1, termsStep2, 'regUsername');
+                    // STRICT: Do NOT allow bypass - show error and stay on Step 1
+                    alert('حدث خطأ في التحقق من الجهاز، يرجى المحاولة مرة أخرى');
                 }
             });
         }
@@ -2290,40 +2608,59 @@ const Events = {
         // Login to Existing Account Button
         const loginExistingBtn = DOM.get('loginExistingBtn');
         if (loginExistingBtn) {
-            loginExistingBtn.addEventListener('click', () => {
+            loginExistingBtn.addEventListener('click', async () => {
                 if (State.existingUserId && State.existingUserData) {
-                    // Restore user session
+                    // 1. Restore credentials
                     State.userId = State.existingUserId;
-                    State.userData = State.existingUserData;
                     localStorage.setItem('clousx_user_id', State.existingUserId);
                     localStorage.setItem('clousx_is_registered', 'true');
 
-                    // Hide modal and unlock card
+                    // 2. Hide modal
                     UI.hideTermsModal();
-                    UI.unlockCard();
 
-                    // Restore rate limit countdown if active
-                    if (State.existingUserData.lastUsage) {
-                        const timePassed = Date.now() - State.existingUserData.lastUsage;
-                        const remainingTime = CONFIG.RATE_LIMIT_MS - timePassed;
-
-                        if (remainingTime > 0) {
-                            // Start countdown timer
-                            Auth.startCountdown(remainingTime);
-
-                            // Display last generated username
-                            if (State.existingUserData.lastUsername) {
-                                UI.displayUsername(State.existingUserData.lastUsername);
-                                State.currentUsername = State.existingUserData.lastUsername;
-                                localStorage.setItem('lastGeneratedUser', State.existingUserData.lastUsername);
-                            }
-                        }
+                    // 3. Run the FULL checkUserStatus flow
+                    //    This fetches fresh user data + IP data from Firebase,
+                    //    checks all rate limits, shows countdown, displays last username, etc.
+                    try {
+                        await Auth.checkUserStatus();
+                    } catch (e) {
+                        console.error('Login status check failed:', e);
+                        // Fallback: unlock with cached data
+                        State.userData = State.existingUserData;
+                        UI.unlockCard();
+                        Auth.checkRateLimit(State.existingUserData);
                     }
 
-                    // UI.showToast('regToast'); // Removed per user request
+                    // 4. Re-subscribe Firebase listener to the CORRECT userId
+                    //    (The old subscription from App.init() watches a wrong random ID)
+                    //    subscribeToUser now auto-cleans the old listener.
+                    Firebase.subscribeToUser(State.userId, (data) => {
+                        if (data) {
+                            State.userData = data;
+
+                            // Sync rate limit (DO NOT call UI.unlockCard here -
+                            // it would re-enable the search button during countdown)
+                            Auth.checkRateLimit(data);
+                        } else {
+                            // User deleted from Firebase
+                            localStorage.removeItem('clousx_is_registered');
+                            State.userData = null;
+                            UI.lockCard();
+                            State.currentUsername = null;
+
+                            if (State.userIp) {
+                                Firebase.updateIPRestriction(State.userIp, {
+                                    lastUsage: null,
+                                    lastUsername: null
+                                });
+                            }
+                        }
+                    });
+
+                    // 5. Scroll to card
                     UI.highlightSearchCard();
 
-                    // Clean up temp state
+                    // 6. Clean up temp state
                     State.existingUserId = null;
                     State.existingUserData = null;
                 }
@@ -2442,20 +2779,16 @@ const App = {
         if (State.userId) {
             Firebase.subscribeToUser(State.userId, (data) => {
                 if (data) {
-                    // CASCADING SYNC (Partial): If lastUsage removed from User, remove from IP
-                    if (State.userData && State.userData.lastUsage && !data.lastUsage && State.userIp) {
-                        Firebase.updateIPRestriction(State.userIp, {
-                            lastUsage: null,
-                            lastUsername: null
-                        });
-                    }
-
                     State.userData = data;
 
-                    // 1. Sync Registration
+                    // 1. Sync Registration (only unlock if NOT rate limited)
                     if (data.registeredAt) {
                         localStorage.setItem('clousx_is_registered', 'true');
-                        UI.unlockCard();
+                        // Check rate limit FIRST before unlocking
+                        const hasActiveRateLimit = data.lastUsage && (Date.now() - data.lastUsage) < CONFIG.RATE_LIMIT_MS;
+                        if (!hasActiveRateLimit) {
+                            UI.unlockCard();
+                        }
                     }
 
                     // 2. Sync User Rate Limit
@@ -2466,14 +2799,6 @@ const App = {
                     State.userData = null;
                     UI.lockCard(); // Locks UI and resets Output Value
                     State.currentUsername = null;
-
-                    // CASCADING SYNC: Clear IP Activity (Rate Limit & Last Username)
-                    if (State.userIp) {
-                        Firebase.updateIPRestriction(State.userIp, {
-                            lastUsage: null,
-                            lastUsername: null
-                        });
-                    }
                 }
             });
         }
@@ -2503,20 +2828,6 @@ const App = {
                     } else {
                         // DELETED: IP Restriction removed
 
-                        // CASCADING SYNC: Clear User Activity (Rate Limit & Last Username)
-                        // Don't delete the whole user, just reset their limits so they can search again
-                        if (State.userId) {
-                            Firebase.updateUserData(State.userId, {
-                                lastUsage: null,
-                                lastUsername: null
-                            });
-                            // Also update local state
-                            if (State.userData) {
-                                State.userData.lastUsage = null;
-                                State.userData.lastUsername = null;
-                            }
-                        }
-
                         // 1. Stop Countdown
                         if (State.countdownInterval) {
                             clearInterval(State.countdownInterval);
@@ -2538,7 +2849,16 @@ const App = {
                         const isRegistered = localStorage.getItem('clousx_is_registered') === 'true';
                         if (isRegistered) {
                             const searchBtn = DOM.get('searchBtn');
-                            if (searchBtn) searchBtn.disabled = false;
+                            
+                            // CRITICAL FIX: Only unlock if user is ALSO not rate-limited
+                            let isUserRateLimited = false;
+                            if (State.userData && State.userData.lastUsage) {
+                                if (Date.now() - State.userData.lastUsage < CONFIG.RATE_LIMIT_MS) {
+                                    isUserRateLimited = true;
+                                }
+                            }
+                            
+                            if (searchBtn && !isUserRateLimited) searchBtn.disabled = false;
 
                             const card = DOM.get('searchCard');
                             if (card) {
