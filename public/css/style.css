@@ -84,25 +84,20 @@ p {
 }
 
 /* ==============================================
-   4. SCROLLBAR
+   4. HIDE SCROLLBAR (GLOBAL)
    ============================================== */
 
+/* Chrome, Safari, Edge, Opera */
 ::-webkit-scrollbar {
-    width: 8px;
+    display: none;
 }
 
-::-webkit-scrollbar-track {
-    background: var(--bg-dark);
+/* IE and Firefox */
+html, body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
-}
 
 /* ==============================================
    5. UTILITIES
@@ -922,14 +917,17 @@ p {
     justify-content: center;
     position: relative;
     z-index: 1;
-    /* Lowest context in hero-card-side container */
+    height: 60px; /* Fixed height to prevent card from shifting */
 }
 
 .stat-num {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-main);
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
 }
 
 .stat-label {
@@ -3334,8 +3332,8 @@ footer {
     gap: 16px;
     max-width: 800px;
     margin: 30px auto 0;
-    min-height: 80px;
-    align-content: center;
+    min-height: 240px;
+    align-content: start;
 }
 
 /* Dynamic Grid Layouts */
@@ -3386,6 +3384,7 @@ footer {
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .review-card::before {
@@ -3502,16 +3501,131 @@ footer {
     opacity: 0.8;
 }
 
-/* Loading State */
-.loading-reviews {
-    grid-column: 1 / -1;
+/* Skeleton Placeholder Cards */
+.review-card-skeleton {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Force both card types to identical height */
+.review-card, .review-card-skeleton {
+    height: 90px;
+}
+
+.review-card-skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%
+    );
+    animation: skeletonPulse 2s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes skeletonPulse {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+}
+
+/* Skeleton inner elements */
+.skel-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    flex-shrink: 0;
+}
+
+.skel-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 4px;
+}
+
+.skel-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    gap: 15px;
-    color: #666;
-    height: 200px;
+    height: 16px;
+}
+
+.skel-name {
+    width: 70px;
+    height: 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.skel-time {
+    width: 35px;
+    height: 9px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.skel-target {
+    width: 100px;
+    height: 12px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.skel-stars {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+    height: 13px;
+    align-items: center;
+}
+
+.skel-stars span {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Review cards: snappy original feel + subtle blur */
+.review-card[data-reveal] {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+    filter: blur(3px);
+    transition:
+        opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.5s ease;
+}
+
+.review-card[data-reveal].revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+}
+
+/* Skeleton fade-out */
+.review-card-skeleton.fade-out {
+    animation: skeletonFadeOut 0.3s ease forwards;
+}
+
+@keyframes skeletonFadeOut {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.96); }
 }
 
 /* Responsive */
@@ -3591,4 +3705,118 @@ body.no-scroll {
     width: 100%;
     min-height: 150px;
     /* Give it some vertical space to center in */
+}
+
+
+
+/* Card Fetching State */
+.search-card .card-content {
+    transition: filter 0.4s ease, opacity 0.4s ease;
+}
+
+.search-card.card-fetching .card-content {
+    filter: blur(6px);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.search-card.card-fetching::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    margin-left: -22px;
+    background: transparent !important;
+    border: 4px solid rgba(89, 224, 96, 0.15);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: google-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    z-index: 100;
+    opacity: 1;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+@keyframes google-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Stats Fetching State */
+.stat-fetching {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    min-width: 60px;
+}
+
+.stat-fetching::after, .stat-fading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: google-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+.stat-fading {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    min-width: 60px;
+}
+
+.stat-fading::after {
+    opacity: 0;
+}
+
+/* ==============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================== */
+
+/* Base hidden state */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(25px);
+    filter: blur(4px);
+    transition:
+        opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+        filter 0.8s ease;
+    will-change: opacity, transform, filter;
+}
+
+/* Direction overrides */
+[data-reveal="right"] {
+    transform: translateX(-40px) translateY(0);
+}
+
+/* Revealed state */
+[data-reveal].revealed {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+    filter: blur(0px);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+        filter: none;
+        transition: none;
+    }
 }

@@ -100,83 +100,7 @@
 
 </head>
 
-<body class="loading-active">
-
-    <!-- ========== SITE CLOSED OVERLAY ========== -->
-    <div id="site-closed"
-        style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:#0b0c10;font-family:'Cairo',sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;direction:rtl;background-image:radial-gradient(circle at 25% 50%,rgba(89,224,96,0.06) 0%,transparent 45%),linear-gradient(180deg,#0b0c10 0%,#050608 100%);">
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&display=swap');
-
-            html,
-            body {
-                overflow: hidden !important;
-                height: 100% !important;
-                touch-action: none !important;
-                overscroll-behavior: none !important;
-            }
-
-            body *:not(#site-closed):not(#site-closed *) {
-                pointer-events: none !important;
-                user-select: none !important;
-            }
-
-            #site-closed,
-            #site-closed * {
-                pointer-events: auto !important;
-            }
-
-            #site-closed::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 500px;
-                height: 500px;
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(89, 224, 96, 0.12) 0%, transparent 70%);
-                filter: blur(60px);
-                animation: glowPulse 4s ease-in-out infinite;
-            }
-
-            @keyframes glowPulse {
-
-                0%,
-                100% {
-                    opacity: 0.4;
-                    transform: translate(-50%, -50%) scale(1);
-                }
-
-                50% {
-                    opacity: 0.9;
-                    transform: translate(-50%, -50%) scale(1.15);
-                }
-            }
-        </style>
-        <div style="position:relative;z-index:2;padding:20px;max-width:600px;">
-            <div style="font-size:2rem;font-weight:700;color:#fff;margin-bottom:25px;direction:ltr;">ClousX<span
-                    style="color:#59e060;">.</span></div>
-            <h1 style="font-size:2.5rem;font-weight:800;color:#fff;margin:0 0 20px 0;line-height:1.3;">الموقع <span
-                    style="color:#59e060;">مغلق</span></h1>
-            <p style="color:#9ca3af;font-size:1.1rem;line-height:1.8;margin:0;">الموقع مغلق حتى إشعار آخر<br>شكراً
-                لتفهمكم</p>
-        </div>
-    </div>
-    <!-- ========== END OVERLAY ========== -->
-
-
-
-
-
-    <div id="globalLoader" class="global-loader">
-        <div class="loader-content">
-            <div class="loader-logo">ClousX<span class="dot">.</span></div>
-            <div class="loader-spinner"></div>
-            <p class="loader-text">جاري التحقق من البيانات...</p>
-            <p class="loader-slow-text hidden">يبدو أن الاتصال بالإنترنت بطيء... يرجى الانتظار</p>
-        </div>
-    </div>
+<body>
 
 
     <nav class="navbar">
@@ -218,7 +142,7 @@
         <div class="container hero-grid">
             <div class="col-md-5 hero-card-side">
                 <div class="card-pulse-wrapper" id="pulseWrapper">
-                    <div class="search-card locked" id="searchCard">
+                    <div class="search-card locked card-fetching" id="searchCard">
                         <div class="searching-icon" id="searchingIcon" style="display: none;"></div>
 
 
@@ -257,11 +181,11 @@
 
                 <div class="stats-mini">
                     <div class="stat-item">
-                        <span class="stat-num" id="statGenerated">1.2M+</span>
+                        <span class="stat-num stat-fetching" id="statGenerated"></span>
                         <span class="stat-label">تم ايجادها</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-num" id="statUsers">10k+</span>
+                        <span class="stat-num stat-fetching" id="statUsers"></span>
                         <span class="stat-label">مستخدم</span>
                     </div>
                 </div>
@@ -269,10 +193,10 @@
 
 
             <div class="hero-text-side">
-                <h1 class="hero-title">مولد يوزرات <br>مميزة<span class="accent-dot">.</span></h1>
-                <p class="hero-subtitle">نظام توليد ذكي بنسب احتمالية عالية: <strong>50%</strong> للحصول على يوزر شبه
+                <h1 class="hero-title" data-reveal="right">مولد يوزرات <br>مميزة<span class="accent-dot">.</span></h1>
+                <p class="hero-subtitle" data-reveal="right" data-reveal-delay="100">نظام توليد ذكي بنسب احتمالية عالية: <strong>50%</strong> للحصول على يوزر شبه
                     رباعي، و <strong>70%</strong> ليوزر خماسي مميز في كل محاولة بحث.</p>
-                <div class="hero-cta">
+                <div class="hero-cta" data-reveal="right" data-reveal-delay="200">
                     <a href="#features" class="btn-text">كيف يعمل؟ &larr;</a>
                 </div>
             </div>
@@ -283,9 +207,9 @@
 
     <section id="features" class="features-section">
         <div class="container">
-            <h2 class="section-title" dir="rtl">لماذا ClousX؟</h2>
+            <h2 class="section-title" dir="rtl" data-reveal="up">لماذا ClousX؟</h2>
             <div class="features-grid">
-                <article class="feature-card">
+                <article class="feature-card" data-reveal="up" data-reveal-delay="0">
                     <div class="icon-box">
                         <i class="fa-solid fa-at"></i>
                     </div>
@@ -296,7 +220,7 @@
                     </div>
                 </article>
 
-                <article class="feature-card">
+                <article class="feature-card" data-reveal="up" data-reveal-delay="100">
                     <div class="icon-box">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
@@ -306,7 +230,7 @@
                     </div>
                 </article>
 
-                <article class="feature-card">
+                <article class="feature-card" data-reveal="up" data-reveal-delay="200">
                     <div class="icon-box">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
@@ -322,13 +246,41 @@
     <section id="reviews" class="reviews-section">
         <div class="reviews-bg-glow"></div>
         <div class="container">
-            <h2 class="section-title" dir="rtl">التقييمات</h2>
-            <div class="reviews-grid" id="reviewsGrid">
-                <!-- Reviews will be injected here via JS -->
-                <div class="loading-reviews">
-                    <div class="spinner"></div> <!-- Reusing existing spinner styles if any, or add new -->
-                    <p>جاري تحميل التقييمات...</p>
-                </div>
+            <h2 class="section-title" dir="rtl" data-reveal="up">احدث التقييمات</h2>
+            <div class="reviews-grid layout-4" id="reviewsGrid">
+                <!-- Skeleton placeholder cards shown while fetching -->
+                <article class="review-card-skeleton">
+                    <div class="skel-avatar"></div>
+                    <div class="skel-content">
+                        <div class="skel-header"><div class="skel-name"></div><div class="skel-time"></div></div>
+                        <div class="skel-target"></div>
+                        <div class="skel-stars"><span></span><span></span><span></span><span></span><span></span></div>
+                    </div>
+                </article>
+                <article class="review-card-skeleton">
+                    <div class="skel-avatar"></div>
+                    <div class="skel-content">
+                        <div class="skel-header"><div class="skel-name"></div><div class="skel-time"></div></div>
+                        <div class="skel-target"></div>
+                        <div class="skel-stars"><span></span><span></span><span></span><span></span><span></span></div>
+                    </div>
+                </article>
+                <article class="review-card-skeleton">
+                    <div class="skel-avatar"></div>
+                    <div class="skel-content">
+                        <div class="skel-header"><div class="skel-name"></div><div class="skel-time"></div></div>
+                        <div class="skel-target"></div>
+                        <div class="skel-stars"><span></span><span></span><span></span><span></span><span></span></div>
+                    </div>
+                </article>
+                <article class="review-card-skeleton">
+                    <div class="skel-avatar"></div>
+                    <div class="skel-content">
+                        <div class="skel-header"><div class="skel-name"></div><div class="skel-time"></div></div>
+                        <div class="skel-target"></div>
+                        <div class="skel-stars"><span></span><span></span><span></span><span></span><span></span></div>
+                    </div>
+                </article>
             </div>
         </div>
     </section>
@@ -336,7 +288,7 @@
 
     <section id="about" class="about-section">
         <div class="container">
-            <div class="about-content">
+            <div class="about-content" data-reveal="up">
                 <h2 dir="rtl">ما هي خدمة ClousX؟</h2>
                 <p>نحن نسهل عليك عملية الحصول على اسم مستخدم مميز في منصات التواصل الاجتماعي من خلال البحث عن الأنماط
                     المتاحة التي يصعب إيجادها يدوياً.</p>
@@ -346,7 +298,7 @@
     </section>
 
 
-    <footer class="footer">
+    <footer class="footer" data-reveal="up">
         <div class="container">
 
             <div class="footer-mobile-only">

@@ -10,7 +10,7 @@
    ============================================== */
 
 const CONFIG = {
-    API_URL: 'https://web-production-f8d35.up.railway.app/search',
+    API_URL: 'https://web-production-2b42b.up.railway.app/search',
     IP_API_URL: 'https://api.ipify.org?format=json',
     SEARCH_TIMEOUT_SEC: 30,
     RATE_LIMIT_MS: 30 * 60 * 1000, // 30 minutes
@@ -482,36 +482,21 @@ const Network = {
 
 const UI = {
     showLoader() {
-        const loader = DOM.get('globalLoader');
-        if (loader) {
-            loader.classList.remove('hidden');
-            loader.style.visibility = 'visible';
-            loader.style.display = '';
-            document.body.classList.add('loading-active');
+        const card = DOM.get('searchCard');
+        if (card) {
+            card.classList.add('card-fetching');
         }
     },
 
     hideLoader() {
-        const loader = DOM.get('globalLoader');
-        if (loader && !loader.classList.contains('hidden')) {
-            loader.classList.add('hidden');
-            document.body.classList.remove('loading-active');
-            setTimeout(() => {
-                loader.style.visibility = 'hidden';
-                loader.style.display = 'none';
-            }, 600);
+        const card = DOM.get('searchCard');
+        if (card) {
+            card.classList.remove('card-fetching');
         }
     },
 
     updateLoaderText(text) {
-        const loaderText = DOM.query('.loader-text');
-        if (loaderText) {
-            loaderText.style.opacity = '0';
-            setTimeout(() => {
-                loaderText.textContent = text;
-                loaderText.style.opacity = '1';
-            }, 300);
-        }
+        // Obsolete since global loader is removed
     },
 
     showTermsModal() {
@@ -765,7 +750,21 @@ const UI = {
 
         // Initial Render or Full Reset (if empty or no children yet)
         if (!el.children.length || !el.querySelector('.d-cont')) {
-            this.renderFullNumber(el, newValue);
+            if (el.classList.contains('stat-fetching')) {
+                el.classList.remove('stat-fetching');
+                el.classList.add('stat-fading');
+                setTimeout(() => el.classList.remove('stat-fading'), 400);
+            }
+            
+            // To animate initial load, render '0's of the same length
+            // Replace non-numeric chars with '0' as well so animation is uniform
+            const dummyStr = newValue.replace(/[0-9]/g, '0');
+            this.renderFullNumber(el, dummyStr);
+            
+            // Wait slightly so DOM registers the dummy string, then animate to target
+            setTimeout(() => {
+                this.animateTicker(elementId, newValueRaw);
+            }, 50);
             return;
         }
 
@@ -1135,54 +1134,87 @@ const UI = {
         const grid = DOM.get('reviewsGrid');
         if (!grid) return;
 
-        grid.innerHTML = '';
-        grid.className = 'reviews-grid'; // Reset classes
+        // Check if skeletons are present (first load)
+        const skeletons = grid.querySelectorAll('.review-card-skeleton');
+        const isFirstLoad = skeletons.length > 0;
 
         if (reviews.length === 0) {
-            grid.innerHTML = `
-                <div class="no-reviews">
-                    <div class="no-reviews-icon"><i class="fa-regular fa-comments"></i></div>
-                    <p class="no-reviews-text">لم يتم إضافة تقييمات بعد.. كن أول المبادرين!</p>
-                </div>
-            `;
+            if (isFirstLoad) {
+                skeletons.forEach(s => s.classList.add('fade-out'));
+                setTimeout(() => {
+                    grid.innerHTML = '';
+                    grid.className = 'reviews-grid';
+                    grid.innerHTML = `
+                        <div class="no-reviews">
+                            <div class="no-reviews-icon"><i class="fa-regular fa-comments"></i></div>
+                            <p class="no-reviews-text">لم يتم إضافة تقييمات بعد.. كن أول المبادرين!</p>
+                        </div>
+                    `;
+                }, 300);
+            } else {
+                grid.innerHTML = '';
+                grid.className = 'reviews-grid';
+                grid.innerHTML = `
+                    <div class="no-reviews">
+                        <div class="no-reviews-icon"><i class="fa-regular fa-comments"></i></div>
+                        <p class="no-reviews-text">لم يتم إضافة تقييمات بعد.. كن أول المبادرين!</p>
+                    </div>
+                `;
+            }
             return;
         }
 
-        // Apply Layout Class
-        if (reviews.length >= 4) grid.classList.add('layout-4');
-        else if (reviews.length === 3) grid.classList.add('layout-3');
-        else if (reviews.length === 2) grid.classList.add('layout-2');
-        else grid.classList.add('layout-1');
+        const buildCards = () => {
+            grid.innerHTML = '';
+            grid.className = 'reviews-grid';
 
-        reviews.forEach(review => {
-            const timeStr = this.formatTime(review.timestamp);
-            const starsHtml = Array(5).fill(0).map((_, i) =>
-                `<i class="fa-solid fa-star ${i < review.rating ? '' : 'empty'}" style="${i < review.rating ? '' : 'color: #444;'}"></i>`
-            ).join('');
+            // Apply Layout Class
+            if (reviews.length >= 4) grid.classList.add('layout-4');
+            else if (reviews.length === 3) grid.classList.add('layout-3');
+            else if (reviews.length === 2) grid.classList.add('layout-2');
+            else grid.classList.add('layout-1');
 
-            // Generate deterministic avatar color/letter (kept for color if needed, but using Icon now)
-            // const initial = (review.raterId || 'U').substring(0, 1).toUpperCase();
+            reviews.forEach((review, index) => {
+                const timeStr = this.formatTime(review.timestamp);
+                const starsHtml = Array(5).fill(0).map((_, i) =>
+                    `<i class="fa-solid fa-star ${i < review.rating ? '' : 'empty'}" style="${i < review.rating ? '' : 'color: #444;'}"></i>`
+                ).join('');
 
-            const card = document.createElement('article');
-            card.className = 'review-card';
-            card.style.animation = 'fadeIn 0.5s ease backwards';
-            card.innerHTML = `
-                <div class="review-avatar"><i class="fa-solid fa-user"></i></div>
-                <div class="review-content">
-                    <div class="review-header">
-                        <span class="review-author">${review.raterName || 'مستخدم'}</span>
-                        <span class="review-time">${timeStr}</span>
+                const card = document.createElement('article');
+                card.className = 'review-card';
+                card.setAttribute('data-reveal', 'up');
+                card.setAttribute('data-reveal-delay', String(index * 70));
+                card.setAttribute('data-reveal-repeat', '');
+                card.innerHTML = `
+                    <div class="review-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="review-content">
+                        <div class="review-header">
+                            <span class="review-author">${review.raterName || 'مستخدم'}</span>
+                            <span class="review-time">${timeStr}</span>
+                        </div>
+                        <div class="review-target">
+                            قيم <span class="at">@</span>${review.username}
+                        </div>
+                        <div class="review-stars">
+                            ${starsHtml}
+                        </div>
                     </div>
-                    <div class="review-target">
-                        قيم <span class="at">@</span>${review.username}
-                    </div>
-                    <div class="review-stars">
-                        ${starsHtml}
-                    </div>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+                `;
+                grid.appendChild(card);
+            });
+        };
+
+        if (isFirstLoad) {
+            // Fade out skeletons first
+            skeletons.forEach(s => s.classList.add('fade-out'));
+            setTimeout(() => {
+                buildCards();
+                ScrollReveal.observeNew();
+            }, 300);
+        } else {
+            buildCards();
+            ScrollReveal.observeNew();
+        }
     },
 
     formatTime(timestamp) {
@@ -1922,14 +1954,10 @@ const SmoothScroll = {
         if (typeof Lenis === 'undefined') return;
 
         this.lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            smooth: true,
-            mouseMultiplier: 1,
-            smoothTouch: true,
-            touchMultiplier: 2,
+            lerp: 0.05,
+            wheelMultiplier: 0.8,
+            smoothWheel: true,
+            smoothTouch: false,
         });
 
         window.lenis = this.lenis;
@@ -2380,20 +2408,7 @@ const App = {
         window.scrollTo(0, 0);
 
         // --- CONNECTION MONITOR ---
-        // Instead of forcing hide, we warn about slow connection
-        setTimeout(() => {
-            const loader = DOM.get('globalLoader');
-            // If loader is still visible after 6 seconds
-            if (loader && !loader.classList.contains('hidden')) {
-                const slowText = DOM.query('.loader-slow-text');
-                if (slowText) {
-                    slowText.classList.remove('hidden');
-                    // Force reflow
-                    void slowText.offsetWidth;
-                    slowText.classList.add('show');
-                }
-            }
-        }, 6000); // Show warning after 6 seconds
+        // (Removed global loader warning logic)
 
         // Safety timeout extended to 45 seconds (only for extreme cases)
         const safetyTimeout = setTimeout(() => {
@@ -2560,11 +2575,78 @@ const App = {
 };
 
 /* ==============================================
+   SCROLL REVEAL OBSERVER
+   ============================================== */
+
+const ScrollReveal = {
+    _repeatObserver: null,
+
+    init() {
+        const revealElements = document.querySelectorAll('[data-reveal]');
+        if (!revealElements.length) return;
+
+        // One-time observer for non-repeating elements
+        const onceObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const delay = parseInt(el.dataset.revealDelay || '0', 10);
+                    setTimeout(() => el.classList.add('revealed'), delay);
+                    onceObserver.unobserve(el);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        // Repeating observer for elements that re-animate
+        this._repeatObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const el = entry.target;
+                const delay = parseInt(el.dataset.revealDelay || '0', 10);
+                if (entry.isIntersecting) {
+                    setTimeout(() => el.classList.add('revealed'), delay);
+                } else {
+                    el.classList.remove('revealed');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -30px 0px'
+        });
+
+        revealElements.forEach(el => {
+            if (el.hasAttribute('data-reveal-repeat')) {
+                this._repeatObserver.observe(el);
+            } else {
+                onceObserver.observe(el);
+            }
+        });
+    },
+
+    // Register newly added elements (e.g. review cards injected by JS)
+    observeNew() {
+        if (!this._repeatObserver) return;
+        const newEls = document.querySelectorAll('[data-reveal]:not(.revealed)');
+        newEls.forEach(el => {
+            if (el.hasAttribute('data-reveal-repeat')) {
+                this._repeatObserver.observe(el);
+            }
+        });
+    }
+};
+
+/* ==============================================
    DOM READY
    ============================================== */
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => App.init());
+    document.addEventListener('DOMContentLoaded', () => {
+        App.init();
+        ScrollReveal.init();
+    });
 } else {
     App.init();
+    ScrollReveal.init();
 }
