@@ -870,7 +870,8 @@ const UI = {
         if (searchBtn) {
             let isRateLimited = false;
             if (State.userData && State.userData.lastUsage) {
-                if (Date.now() - State.userData.lastUsage < CONFIG.RATE_LIMIT_MS) {
+                const cooldown = Auth.getCooldownDuration(State.userData.lastUsername);
+                if (Date.now() - State.userData.lastUsage < cooldown) {
                     isRateLimited = true;
                 }
             }
@@ -1604,9 +1605,10 @@ const Search = {
 
                 // Check rate limit from fresh data
                 if (freshUserData.lastUsage) {
+                    const cooldown = Auth.getCooldownDuration(freshUserData.lastUsername);
                     const timePassed = Date.now() - freshUserData.lastUsage;
-                    if (timePassed < CONFIG.RATE_LIMIT_MS) {
-                        Auth.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
+                    if (timePassed < cooldown) {
+                        Auth.startCountdown(cooldown - timePassed);
                         return;
                     }
                 }
@@ -1614,9 +1616,10 @@ const Search = {
                 console.error('User verification error:', error);
                 // Fallback: use cached State.userData
                 if (State.userData?.lastUsage) {
+                    const cooldown = Auth.getCooldownDuration(State.userData.lastUsername);
                     const timePassed = Date.now() - State.userData.lastUsage;
-                    if (timePassed < CONFIG.RATE_LIMIT_MS) {
-                        Auth.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
+                    if (timePassed < cooldown) {
+                        Auth.startCountdown(cooldown - timePassed);
                         return;
                     }
                 }
@@ -1629,9 +1632,10 @@ const Search = {
             try {
                 const ipData = await Firebase.getIPRestriction(ipInfo.cleanIp);
                 if (ipData) {
+                    const cooldown = Auth.getCooldownDuration(ipData.lastUsername);
                     const ipTimePassed = Date.now() - (ipData.lastUsage || 0);
-                    if (ipTimePassed < CONFIG.RATE_LIMIT_MS) {
-                        Auth.startCountdown(CONFIG.RATE_LIMIT_MS - ipTimePassed);
+                    if (ipTimePassed < cooldown) {
+                        Auth.startCountdown(cooldown - ipTimePassed);
                         return;
                     }
                 }
@@ -1675,7 +1679,8 @@ const Search = {
                 }
             }
 
-            Auth.startCountdown(CONFIG.RATE_LIMIT_MS);
+            const cooldown = Auth.getCooldownDuration(State.currentUsername);
+            Auth.startCountdown(cooldown);
         } else {
             if (searchBtn) searchBtn.disabled = false;
         }
@@ -1755,6 +1760,16 @@ const Auth = {
             localStorage.setItem('clousx_user_id', id);
         }
         return id;
+    },
+
+    getCooldownDuration(username) {
+        if (!username) return 2 * 60 * 60 * 1000; // Default 2 hours
+        // If username contains a dot or underscore, it's a semi-4-letter -> 12 hours
+        if (username.includes('.') || username.includes('_')) {
+            return 12 * 60 * 60 * 1000;
+        }
+        // Normal 5-letter -> 2 hours
+        return 2 * 60 * 60 * 1000;
     },
 
     async register() {
@@ -1903,7 +1918,8 @@ const Auth = {
         if (searchBtn && isRegistered) {
             let isRateLimited = false;
             if (State.userData && State.userData.lastUsage) {
-                if (Date.now() - State.userData.lastUsage < CONFIG.RATE_LIMIT_MS) {
+                const cooldown = Auth.getCooldownDuration(State.userData.lastUsername);
+                if (Date.now() - State.userData.lastUsage < cooldown) {
                     isRateLimited = true;
                 }
             }
@@ -1966,10 +1982,11 @@ const Auth = {
 
     checkRateLimit(userData) {
         const lastUsage = userData.lastUsage || 0;
+        const cooldown = Auth.getCooldownDuration(userData.lastUsername);
         const timePassed = Date.now() - lastUsage;
 
-        if (lastUsage && timePassed < CONFIG.RATE_LIMIT_MS) {
-            this.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
+        if (lastUsage && timePassed < cooldown) {
+            this.startCountdown(cooldown - timePassed);
         }
     },
 
@@ -2003,10 +2020,11 @@ const Auth = {
                 localStorage.setItem('clousx_is_registered', 'true');
                 
                 if (userData.lastUsage) {
+                    const cooldown = Auth.getCooldownDuration(userData.lastUsername);
                     const timePassed = Date.now() - userData.lastUsage;
-                    if (timePassed < CONFIG.RATE_LIMIT_MS) {
+                    if (timePassed < cooldown) {
                         isRateLimited = true;
-                        timeRemaining = CONFIG.RATE_LIMIT_MS - timePassed;
+                        timeRemaining = cooldown - timePassed;
                         lastFoundUser = userData.lastUsername;
                     }
                 } else if (userData.lastUsername) {
@@ -2029,9 +2047,10 @@ const Auth = {
                 try {
                     const ipData = await Firebase.getIPRestriction(ipInfo.cleanIp);
                     if (ipData && ipData.lastUsage) {
+                        const cooldown = Auth.getCooldownDuration(ipData.lastUsername);
                         const timePassed = Date.now() - ipData.lastUsage;
-                        if (timePassed < CONFIG.RATE_LIMIT_MS) {
-                            const ipTimeRemaining = CONFIG.RATE_LIMIT_MS - timePassed;
+                        if (timePassed < cooldown) {
+                            const ipTimeRemaining = cooldown - timePassed;
                             if (ipTimeRemaining > timeRemaining) {
                                 isRateLimited = true;
                                 timeRemaining = ipTimeRemaining;
@@ -2785,7 +2804,8 @@ const App = {
                     if (data.registeredAt) {
                         localStorage.setItem('clousx_is_registered', 'true');
                         // Check rate limit FIRST before unlocking
-                        const hasActiveRateLimit = data.lastUsage && (Date.now() - data.lastUsage) < CONFIG.RATE_LIMIT_MS;
+                        const cooldown = Auth.getCooldownDuration(data.lastUsername);
+                        const hasActiveRateLimit = data.lastUsage && (Date.now() - data.lastUsage) < cooldown;
                         if (!hasActiveRateLimit) {
                             UI.unlockCard();
                         }
@@ -2813,11 +2833,12 @@ const App = {
                     const isRegistered = localStorage.getItem('clousx_is_registered') === 'true';
 
                     if (data) {
+                        const cooldown = Auth.getCooldownDuration(data.lastUsername);
                         const timePassed = Date.now() - (data.lastUsage || 0);
-                        if (timePassed < CONFIG.RATE_LIMIT_MS) {
+                        if (timePassed < cooldown) {
                             // CRITICAL FIX: Only update UI if registered
                             if (isRegistered) {
-                                Auth.startCountdown(CONFIG.RATE_LIMIT_MS - timePassed);
+                                Auth.startCountdown(cooldown - timePassed);
                                 // Also sync username if available
                                 if (data.lastUsername) {
                                     UI.displayUsername(data.lastUsername);
@@ -2853,7 +2874,8 @@ const App = {
                             // CRITICAL FIX: Only unlock if user is ALSO not rate-limited
                             let isUserRateLimited = false;
                             if (State.userData && State.userData.lastUsage) {
-                                if (Date.now() - State.userData.lastUsage < CONFIG.RATE_LIMIT_MS) {
+                                const cooldown = Auth.getCooldownDuration(State.userData.lastUsername);
+                                if (Date.now() - State.userData.lastUsage < cooldown) {
                                     isUserRateLimited = true;
                                 }
                             }
