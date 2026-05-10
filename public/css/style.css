@@ -602,6 +602,11 @@ html, body {
     margin-bottom: 12px;
 }
 
+.text-accent {
+    color: var(--primary);
+    font-weight: 700;
+}
+
 .output-value {
     display: block;
     font-size: 2rem;

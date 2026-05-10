@@ -954,9 +954,76 @@ const UI = {
 
         // Disable rating label
         if (ratingLabel) ratingLabel.classList.add('disabled');
+
+        // Reset label
+        this.updateOutputLabel(null);
     },
 
-    displayUsername(username) {
+    updateOutputLabel(username) {
+        const label = DOM.get('outputLabel');
+        if (!label) return;
+
+        if (!username) {
+            label.textContent = 'اليوزر الخاص بك';
+            return;
+        }
+
+        const isSemi4 = username.includes('.') || username.includes('_');
+        let hasRepeated = false;
+        if (isSemi4) {
+            const charCounts = {};
+            for (let char of username.toLowerCase()) {
+                if (char !== '.' && char !== '_') {
+                    charCounts[char] = (charCounts[char] || 0) + 1;
+                    if (charCounts[char] >= 2) {
+                        hasRepeated = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (isSemi4 && hasRepeated) {
+            label.innerHTML = 'يوزر <span class="text-accent">شبه رباعي مميز</span>';
+        } else if (isSemi4) {
+            label.innerHTML = 'يوزر <span class="text-accent">شبه رباعي</span>';
+        } else {
+            label.innerHTML = 'يوزر <span class="text-accent">خماسي</span>';
+        }
+    },
+
+    triggerConfetti() {
+        if (typeof confetti === 'function') {
+            const el = DOM.get('outputDisplay');
+            let origin = { x: 0.5, y: 0.5 }; // Default center
+
+            if (el) {
+                const rect = el.getBoundingClientRect();
+                origin = {
+                    x: (rect.left + rect.width / 2) / window.innerWidth,
+                    y: (rect.top + rect.height / 2) / window.innerHeight
+                };
+            }
+
+            // High-quality celebratory burst from the element's position
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: origin,
+                colors: ['#59e060', '#ffffff', '#2ecc71'],
+                disableForReducedMotion: true,
+                gravity: 0.8,
+                ticks: 300
+            });
+        }
+    },
+
+    displayUsername(username, shouldCelebrate = false) {
+        if (!username) return;
+        
+        // Prevent re-rendering same username multiple times unnecessarily
+        const isActuallyNew = State.currentUsername !== username;
+
         const outputValue = DOM.get('outputValue');
         const ratingLabel = DOM.query('.rating-label'); // Get label
 
@@ -981,6 +1048,15 @@ const UI = {
         }
 
         State.currentUsername = username; // Save for rating
+
+        // Update dynamic label
+        this.updateOutputLabel(username);
+
+        // Trigger confetti ONLY if explicitly requested (e.g. fresh discovery)
+        const isSemi4 = username.includes('.') || username.includes('_');
+        if (shouldCelebrate && isSemi4) {
+            this.triggerConfetti();
+        }
     },
 
     updateStats(generated, users) {
@@ -1723,7 +1799,7 @@ const Search = {
             ProgressBar.hide(true);
 
             if (data.status === 'success' && data.username) {
-                UI.displayUsername(data.username);
+                UI.displayUsername(data.username, true); // Trigger confetti only on search success
                 UI.updateStatusText('اضغط على اليوزر لنسخه');
                 State.currentUsername = data.username;
                 Firebase.incrementStats('generated'); // Increment Generated Count
@@ -1764,10 +1840,31 @@ const Auth = {
 
     getCooldownDuration(username) {
         if (!username) return 2 * 60 * 60 * 1000; // Default 2 hours
-        // If username contains a dot or underscore, it's a semi-4-letter -> 12 hours
+        
+        // Check if username contains a dot or underscore (semi-4-letter)
         if (username.includes('.') || username.includes('_')) {
-            return 12 * 60 * 60 * 1000;
+            // Check if there is any repeated character (excluding . and _)
+            let hasRepeatedChar = false;
+            const charCounts = {};
+            for (let char of username.toLowerCase()) {
+                if (char !== '.' && char !== '_') {
+                    charCounts[char] = (charCounts[char] || 0) + 1;
+                    if (charCounts[char] >= 2) {
+                        hasRepeatedChar = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (hasRepeatedChar) {
+                // Semi-4-letter AND repeated characters -> 48 hours (2 days)
+                return 48 * 60 * 60 * 1000; 
+            } else {
+                // Semi-4-letter, NO repeated characters -> 12 hours (half a day)
+                return 12 * 60 * 60 * 1000;
+            }
         }
+        
         // Normal 5-letter -> 2 hours
         return 2 * 60 * 60 * 1000;
     },
@@ -1938,18 +2035,14 @@ const Auth = {
         if (outputValue) {
             outputValue.innerHTML = 'اضغط للبدء';
             outputValue.classList.remove('found');
-
-            // Disable rating label
-            const ratingLabel = DOM.query('.rating-label');
-            if (ratingLabel) ratingLabel.classList.add('disabled');
         }
 
-        // Removed pulse-finish since we have the new white flash animation
-        // if (searchCard) {
-        //     searchCard.classList.add('pulse-finish');
-        //     searchCard.classList.remove('reactivate'); // Clean up
-        //     setTimeout(() => searchCard.classList.remove('pulse-finish'), 1500);
-        // }
+        // Disable rating label
+        const ratingLabel = DOM.query('.rating-label');
+        if (ratingLabel) ratingLabel.classList.add('disabled');
+
+        // Reset label
+        UI.updateOutputLabel(null);
 
         localStorage.removeItem('lastGeneratedUser');
         State.currentUsername = null;
@@ -1975,7 +2068,7 @@ const Auth = {
                     });
                 }
             } catch (error) {
-                console.error('Reset DB Error:', error);
+                console.error('Reset User Error:', error);
             }
         }
     },
