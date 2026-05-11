@@ -328,27 +328,22 @@ const Fingerprint = {
      * Layer 4: Multi-signal fallback (5+ of 11 fields)
      */
     match(stored, current) {
-        // Layer 1: Composite Device ID - definitive
+        // Layer 1: Composite Device ID - Primary definitive match
+        // This combines Canvas, WebGL, Audio, Screen, and Hardware signals.
         if (stored.deviceId && current.deviceId && stored.deviceId === current.deviceId) {
             return true;
         }
 
-        // Layer 2: Canvas hash - GPU-based, definitive
-        if (stored.canvasHash && current.canvasHash && stored.canvasHash === current.canvasHash) {
-            return true;
-        }
+        // DELETED: Standalone Canvas/WebGL matches. 
+        // These are NOT unique enough globally and caused account collisions.
 
-        // Layer 3: WebGL hash - GPU-specific, definitive
-        if (stored.webglHash && current.webglHash && stored.webglHash === current.webglHash) {
-            return true;
-        }
-
-        // Layer 4: Multi-signal fallback
+        // Layer 2: Multi-signal fallback (Hardened)
+        // Must match at least 8 of 12 signals to be considered the same device.
         let matches = 0;
         const fields = [
+            'canvasHash', 'webglHash', 'audioHash',
             'userAgent', 'platform', 'screenSize', 'timezone', 'language',
-            'cores', 'memory', 'colorDepth', 'pixelRatio', 'maxTouchPoints',
-            'audioHash'
+            'cores', 'memory', 'colorDepth', 'maxTouchPoints'
         ];
 
         for (const field of fields) {
@@ -357,8 +352,8 @@ const Fingerprint = {
             }
         }
 
-        // 5+ of 11 signals match = very likely same device
-        return matches >= 5;
+        // 8+ of 12 signals match = very likely same device
+        return matches >= 8;
     },
 
     /**
@@ -397,15 +392,6 @@ const Fingerprint = {
             if (fingerprint.deviceId) {
                 updates['device_fingerprints/' + fingerprint.deviceId] = userId;
             }
-            if (fingerprint.canvasHash) {
-                updates['device_fingerprints/' + fingerprint.canvasHash] = userId;
-            }
-            if (fingerprint.webglHash) {
-                updates['device_fingerprints/' + fingerprint.webglHash] = userId;
-            }
-            if (fingerprint.audioHash) {
-                updates['device_fingerprints/' + fingerprint.audioHash] = userId;
-            }
 
             if (Object.keys(updates).length > 0) {
                 await Firebase.db.ref().update(updates);
@@ -425,12 +411,9 @@ const Fingerprint = {
 
         try {
             // === FAST PATH: O(1) index lookups ===
-            const indexKeys = [
-                currentFingerprint.deviceId,
-                currentFingerprint.canvasHash,
-                currentFingerprint.webglHash,
-                currentFingerprint.audioHash
-            ].filter(Boolean);
+            // ONLY use the composite deviceId.
+            // Using individual hashes (Canvas/WebGL) causes global collisions.
+            const indexKeys = [currentFingerprint.deviceId].filter(Boolean);
 
             for (const key of indexKeys) {
                 const result = await this.findByDeviceIndex(key);
