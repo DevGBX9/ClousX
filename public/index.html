@@ -375,7 +375,7 @@
                         <div class="input-wrapper">
                             <i class="fa-regular fa-user input-icon"></i>
                             <input type="text" id="regUsername" class="form-input" placeholder="ادخل اسم المستخدم"
-                                autocomplete="off">
+                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true">
                         </div>
                         <span class="input-error" id="usernameError"></span>
                     </div>
@@ -397,7 +397,8 @@
                     <div class="form-group">
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock input-icon"></i>
-                            <input type="password" id="regPassword" class="form-input" placeholder="ادخل كلمة المرور">
+                            <input type="password" id="regPassword" class="form-input" placeholder="ادخل كلمة المرور"
+                                autocomplete="new-password" data-form-type="other" data-lpignore="true">
                             <i class="fa-regular fa-eye toggle-password" id="togglePassword"></i>
                         </div>
                         <span class="input-error" id="passwordError"></span>

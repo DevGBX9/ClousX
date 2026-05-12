@@ -2578,17 +2578,67 @@ const Events = {
             });
         }
 
-        // Enable/Disable buttons based on input validation
+        // Enable/Disable buttons based on input validation + Live username check
         const usernameInput = DOM.get('regUsername');
+        let usernameCheckTimer = null;
+        
         if (usernameInput && nextToPasswordBtn) {
+            const usernameError = DOM.get('usernameError');
+
             usernameInput.addEventListener('input', () => {
-                nextToPasswordBtn.disabled = usernameInput.value.trim().length < 3;
+                const val = usernameInput.value.trim();
+                nextToPasswordBtn.disabled = val.length < 3;
+
+                // Clear previous error
+                if (usernameError) {
+                    usernameError.textContent = '';
+                    usernameError.className = 'input-error';
+                }
+
+                // Live availability check (debounced)
+                clearTimeout(usernameCheckTimer);
+                if (val.length >= 3 && Firebase.db) {
+                    usernameCheckTimer = setTimeout(async () => {
+                        try {
+                            const usersRef = Firebase.db.ref('users');
+                            const snapshot = await usersRef.orderByChild('username').equalTo(val).once('value');
+                            if (usernameError) {
+                                if (snapshot.exists()) {
+                                    usernameError.textContent = 'اسم المستخدم مستعمل بالفعل';
+                                    usernameError.className = 'input-error active';
+                                    nextToPasswordBtn.disabled = true;
+                                } else {
+                                    usernameError.textContent = 'متاح ✓';
+                                    usernameError.className = 'input-error available';
+                                }
+                            }
+                        } catch (e) {
+                            console.warn('Username check failed:', e);
+                        }
+                    }, 400);
+                }
+            });
+
+            // Enter key → click "Next"
+            usernameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !nextToPasswordBtn.disabled) {
+                    e.preventDefault();
+                    nextToPasswordBtn.click();
+                }
             });
         }
 
         if (passwordInput && confirmTermsBtn) {
             passwordInput.addEventListener('input', () => {
                 confirmTermsBtn.disabled = passwordInput.value.trim().length < 6;
+            });
+
+            // Enter key → click "Create Account"
+            passwordInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !confirmTermsBtn.disabled) {
+                    e.preventDefault();
+                    confirmTermsBtn.click();
+                }
             });
         }
 
