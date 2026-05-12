@@ -2874,6 +2874,18 @@ const App = {
 
         clearTimeout(safetyTimeout); // Clear timeout if successful
 
+        // ONE-TIME CLEANUP: Remove legacy data from old fingerprint system
+        if (Firebase.db && !localStorage.getItem('clousx_v3_cleanup_done')) {
+            try {
+                // Delete entire device_fingerprints node (no longer used)
+                Firebase.db.ref('device_fingerprints').remove();
+                localStorage.setItem('clousx_v3_cleanup_done', 'true');
+                console.log('Legacy cleanup complete: device_fingerprints removed');
+            } catch (e) {
+                console.warn('Legacy cleanup skipped:', e);
+            }
+        }
+
         setTimeout(() => {
             UI.hideLoader();
 
