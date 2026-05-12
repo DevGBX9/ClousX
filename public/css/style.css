@@ -1200,6 +1200,11 @@ html, body {
     padding-left: 45px;
 }
 
+/* Specific padding for username input with status icon on left */
+#regUsername {
+    padding-left: 40px;
+}
+
 .form-input:focus {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.1);
@@ -1282,6 +1287,30 @@ html, body {
 
 .input-error.active {
     color: #ff4d4d;
+}
+
+/* Username availability status icon */
+.username-status {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    font-size: 0.95rem;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+
+.username-status.available {
+    color: #59e060;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+.username-status.taken {
+    color: #ff4d4d;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
 }
 
 /* --- End of Rebuilt Modal System --- */

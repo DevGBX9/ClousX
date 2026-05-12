@@ -2583,16 +2583,15 @@ const Events = {
         let usernameCheckTimer = null;
         
         if (usernameInput && nextToPasswordBtn) {
-            const usernameError = DOM.get('usernameError');
+            const statusIcon = DOM.get('usernameStatus');
 
             usernameInput.addEventListener('input', () => {
                 const val = usernameInput.value.trim();
                 nextToPasswordBtn.disabled = val.length < 3;
 
-                // Clear previous error
-                if (usernameError) {
-                    usernameError.textContent = '';
-                    usernameError.className = 'input-error';
+                // Reset status icon
+                if (statusIcon) {
+                    statusIcon.className = 'username-status';
                 }
 
                 // Live availability check (debounced)
@@ -2602,14 +2601,12 @@ const Events = {
                         try {
                             const usersRef = Firebase.db.ref('users');
                             const snapshot = await usersRef.orderByChild('username').equalTo(val).once('value');
-                            if (usernameError) {
+                            if (statusIcon) {
                                 if (snapshot.exists()) {
-                                    usernameError.textContent = 'اسم المستخدم مستعمل بالفعل';
-                                    usernameError.className = 'input-error active';
+                                    statusIcon.className = 'username-status fa-solid fa-circle-xmark taken';
                                     nextToPasswordBtn.disabled = true;
                                 } else {
-                                    usernameError.textContent = 'متاح ✓';
-                                    usernameError.className = 'input-error available';
+                                    statusIcon.className = 'username-status fa-solid fa-circle-check available';
                                 }
                             }
                         } catch (e) {
