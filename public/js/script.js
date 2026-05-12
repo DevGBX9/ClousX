@@ -141,309 +141,182 @@ const Scroll = {
 };
 
 /* ==============================================
-   FINGERPRINT MODULE (Anti-Fraud) - Enhanced v2.0
-   Multi-layer hardware fingerprinting that persists
-   across Chrome profiles, Incognito, and browser resets.
+   DEVICE TOKEN MODULE (Anti-Fraud) v3.0
+   Uses a cryptographically unique random token per device.
+   Impossible to collide (UUID v4 = 2^122 possible values).
+   Stored in localStorage + IndexedDB for maximum persistence.
    ============================================== */
 
-const Fingerprint = {
+const DeviceToken = {
+    DB_NAME: 'clousx_device_db',
+    STORE_NAME: 'tokens',
+    LS_KEY: 'clousx_device_token',
+
     /**
-     * Generate a unique Canvas Fingerprint hash.
-     * Same across all browser profiles on the same device (GPU-based).
+     * Generate a cryptographically random UUID v4.
+     * Uses crypto.randomUUID() if available, otherwise manual generation.
      */
-    generateCanvasHash() {
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 200;
-            canvas.height = 50;
-
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillStyle = '#f60';
-            ctx.fillRect(125, 1, 62, 20);
-            ctx.fillStyle = '#069';
-            ctx.fillText('ClousX-FP-2026', 2, 15);
-            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
-            ctx.fillText('ClousX-FP-2026', 4, 17);
-
-            const dataUrl = canvas.toDataURL();
-            return this.hashString(dataUrl);
-        } catch (e) {
-            console.warn('Canvas fingerprint failed:', e);
-            return null;
+    generateUUID() {
+        if (crypto && crypto.randomUUID) {
+            return crypto.randomUUID();
         }
+        // Fallback for older browsers
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = (crypto.getRandomValues(new Uint8Array(1))[0] & 15) >> (c === 'x' ? 0 : 3);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
     },
 
     /**
-     * Generate WebGL fingerprint - GPU-specific.
-     * Identical across all Chrome profiles on the same hardware.
+     * Save token to IndexedDB (survives localStorage clearing).
      */
-    generateWebGLHash() {
-        try {
-            const canvas = document.createElement('canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            if (!gl) return null;
-
-            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-            const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : '';
-            const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : '';
-
-            const params = [
-                renderer, vendor,
-                gl.getParameter(gl.MAX_TEXTURE_SIZE),
-                gl.getParameter(gl.MAX_VERTEX_ATTRIBS),
-                gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
-                gl.getParameter(gl.MAX_VARYING_VECTORS),
-                gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
-                gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
-                String(gl.getParameter(gl.ALIASED_LINE_WIDTH_RANGE)),
-                String(gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)),
-                (gl.getSupportedExtensions() || []).join(',')
-            ].join('|');
-
-            return this.hashString(params);
-        } catch (e) {
-            console.warn('WebGL fingerprint failed:', e);
-            return null;
-        }
+    async saveToIDB(token) {
+        return new Promise((resolve) => {
+            try {
+                const request = indexedDB.open(this.DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(this.STORE_NAME)) {
+                        db.createObjectStore(this.STORE_NAME);
+                    }
+                };
+                request.onsuccess = (e) => {
+                    try {
+                        const db = e.target.result;
+                        const tx = db.transaction(this.STORE_NAME, 'readwrite');
+                        tx.objectStore(this.STORE_NAME).put(token, 'device_token');
+                        tx.oncomplete = () => resolve(true);
+                        tx.onerror = () => resolve(false);
+                    } catch { resolve(false); }
+                };
+                request.onerror = () => resolve(false);
+            } catch { resolve(false); }
+        });
     },
 
     /**
-     * Generate AudioContext fingerprint - audio hardware-specific.
-     * Identical across all browser profiles on the same device.
+     * Read token from IndexedDB.
      */
-    generateAudioHash() {
-        try {
-            const AC = window.AudioContext || window.webkitAudioContext;
-            if (!AC) return null;
-
-            const ctx = new AC();
-            const analyser = ctx.createAnalyser();
-
-            const audioData = [
-                ctx.sampleRate,
-                ctx.destination.maxChannelCount,
-                ctx.destination.numberOfInputs,
-                ctx.destination.numberOfOutputs,
-                ctx.destination.channelCount,
-                ctx.destination.channelCountMode,
-                ctx.destination.channelInterpretation,
-                analyser.fftSize,
-                analyser.frequencyBinCount,
-                analyser.minDecibels,
-                analyser.maxDecibels,
-                analyser.smoothingTimeConstant,
-            ].join('|');
-
-            ctx.close();
-            return this.hashString(audioData);
-        } catch (e) {
-            console.warn('Audio fingerprint failed:', e);
-            return null;
-        }
+    async readFromIDB() {
+        return new Promise((resolve) => {
+            try {
+                const request = indexedDB.open(this.DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(this.STORE_NAME)) {
+                        db.createObjectStore(this.STORE_NAME);
+                    }
+                };
+                request.onsuccess = (e) => {
+                    try {
+                        const db = e.target.result;
+                        const tx = db.transaction(this.STORE_NAME, 'readonly');
+                        const getReq = tx.objectStore(this.STORE_NAME).get('device_token');
+                        getReq.onsuccess = () => resolve(getReq.result || null);
+                        getReq.onerror = () => resolve(null);
+                    } catch { resolve(null); }
+                };
+                request.onerror = () => resolve(null);
+            } catch { resolve(null); }
+        });
     },
 
     /**
-     * Get hardware signals that NEVER change across browser profiles.
+     * Get or create the device token.
+     * Priority: localStorage -> IndexedDB -> generate new.
+     * Always syncs across both stores for redundancy.
      */
-    getHardwareSignals() {
-        return {
-            cores: navigator.hardwareConcurrency || 0,
-            memory: navigator.deviceMemory || 0,
-            maxTouchPoints: navigator.maxTouchPoints || 0,
-            colorDepth: screen.colorDepth,
-            pixelRatio: window.devicePixelRatio || 1,
-        };
-    },
+    async getOrCreate() {
+        // 1. Check localStorage first (fastest)
+        let token = localStorage.getItem(this.LS_KEY);
 
-    /**
-     * Generate a composite Device ID from ALL hardware signals.
-     * This is the master fingerprint - nearly impossible to fake
-     * without changing actual hardware.
-     */
-    generateDeviceId() {
-        const canvas = this.generateCanvasHash();
-        const webgl = this.generateWebGLHash();
-        const audio = this.generateAudioHash();
-        const hw = this.getHardwareSignals();
-
-        const composite = [
-            canvas || 'x',
-            webgl || 'x',
-            audio || 'x',
-            hw.cores,
-            hw.memory,
-            hw.colorDepth,
-            hw.pixelRatio,
-            screen.width + 'x' + screen.height,
-            hw.maxTouchPoints
-        ].join('::');
-
-        return this.hashString(composite);
-    },
-
-    /**
-     * Simple hash function (djb2 algorithm)
-     */
-    hashString(str) {
-        let hash = 5381;
-        for (let i = 0; i < str.length; i++) {
-            hash = ((hash << 5) + hash) + str.charCodeAt(i);
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        return Math.abs(hash).toString(36);
-    },
-
-    /**
-     * Generate full fingerprint object (enhanced v2.0)
-     */
-    generate() {
-        const hw = this.getHardwareSignals();
-        return {
-            canvasHash: this.generateCanvasHash(),
-            webglHash: this.generateWebGLHash(),
-            audioHash: this.generateAudioHash(),
-            deviceId: this.generateDeviceId(),
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            screenSize: `${window.screen.width}x${window.screen.height}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            cores: hw.cores,
-            memory: hw.memory,
-            colorDepth: hw.colorDepth,
-            pixelRatio: hw.pixelRatio,
-            maxTouchPoints: hw.maxTouchPoints,
-        };
-    },
-
-    /**
-     * Check if two fingerprints match (same device).
-     * Multi-layer detection - extremely hard to bypass.
-     *
-     * Layer 1: Composite Device ID (all hardware combined)
-     * Layer 2: Canvas hash (GPU rendering)
-     * Layer 3: WebGL hash (GPU info)
-     * Layer 4: Multi-signal fallback (5+ of 11 fields)
-     */
-    match(stored, current) {
-        // Layer 1: Composite Device ID - Primary definitive match
-        // This combines Canvas, WebGL, Audio, Screen, and Hardware signals.
-        if (stored.deviceId && current.deviceId && stored.deviceId === current.deviceId) {
-            return true;
-        }
-
-        // DELETED: Standalone Canvas/WebGL matches. 
-        // These are NOT unique enough globally and caused account collisions.
-
-        // Layer 2: Multi-signal fallback (Hardened)
-        // Must match at least 8 of 12 signals to be considered the same device.
-        let matches = 0;
-        const fields = [
-            'canvasHash', 'webglHash', 'audioHash',
-            'userAgent', 'platform', 'screenSize', 'timezone', 'language',
-            'cores', 'memory', 'colorDepth', 'maxTouchPoints'
-        ];
-
-        for (const field of fields) {
-            if (stored[field] && current[field] && String(stored[field]) === String(current[field])) {
-                matches++;
+        // 2. If not in localStorage, try IndexedDB (survives LS clearing)
+        if (!token) {
+            token = await this.readFromIDB();
+            if (token) {
+                // Restore to localStorage
+                localStorage.setItem(this.LS_KEY, token);
             }
         }
 
-        // 8+ of 12 signals match = very likely same device
-        return matches >= 8;
+        // 3. If no token anywhere, generate a new one
+        if (!token) {
+            token = this.generateUUID();
+            localStorage.setItem(this.LS_KEY, token);
+            await this.saveToIDB(token);
+        } else {
+            // Ensure IndexedDB is in sync
+            this.saveToIDB(token);
+        }
+
+        return token;
     },
 
     /**
-     * FAST: Check device fingerprint index in Firebase (O(1) lookup).
-     * Uses device_fingerprints/{hash} -> userId mapping.
+     * Search Firebase for an existing account linked to this device token.
+     * O(1) lookup via device_tokens/{token} -> userId.
      */
-    async findByDeviceIndex(hashKey) {
-        if (!Firebase.db || !hashKey) return null;
+    async findExistingAccount(token) {
+        if (!Firebase.db || !token) return null;
         try {
-            const ref = Firebase.db.ref('device_fingerprints/' + hashKey);
+            const ref = Firebase.db.ref('device_tokens/' + token);
             const snapshot = await ref.once('value');
             if (!snapshot.exists()) return null;
 
             const userId = snapshot.val();
             const userData = await Firebase.getUserData(userId);
             if (!userData) {
-                // Stale index - user was deleted, clean up
+                // Stale token - user was deleted, clean up
                 ref.remove();
                 return null;
             }
             return { userId, userData };
         } catch (error) {
-            console.error('Device index lookup error:', error);
-            return null;
+            console.error('Device token lookup error:', error);
+            throw error;
         }
     },
 
     /**
-     * Save device fingerprint indexes for fast future lookups.
-     * Stores multiple hash keys pointing to the same userId.
+     * Save device token index in Firebase.
+     * Maps device_tokens/{token} -> userId for O(1) lookup.
      */
-    async saveDeviceIndex(fingerprint, userId) {
-        if (!Firebase.db) return;
+    async saveTokenIndex(token, userId) {
+        if (!Firebase.db || !token) return;
         try {
-            const updates = {};
-            if (fingerprint.deviceId) {
-                updates['device_fingerprints/' + fingerprint.deviceId] = userId;
-            }
-
-            if (Object.keys(updates).length > 0) {
-                await Firebase.db.ref().update(updates);
-            }
+            await Firebase.db.ref('device_tokens/' + token).set(userId);
         } catch (error) {
-            console.error('Error saving device index:', error);
+            console.error('Error saving device token index:', error);
         }
+    }
+};
+
+// Keep Fingerprint as a lightweight helper for storing hardware info (non-critical)
+const Fingerprint = {
+    hashString(str) {
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) + hash) + str.charCodeAt(i);
+            hash = hash & hash;
+        }
+        return Math.abs(hash).toString(36);
     },
 
-    /**
-     * Search Firebase for existing account with matching fingerprint.
-     * Uses fast O(1) index first, then falls back to full scan
-     * for legacy accounts that don't have an index yet.
-     */
-    async findExistingAccount(currentFingerprint) {
-        if (!Firebase.db) return null;
 
-        try {
-            // === FAST PATH: O(1) index lookups ===
-            // ONLY use the composite deviceId.
-            // Using individual hashes (Canvas/WebGL) causes global collisions.
-            const indexKeys = [currentFingerprint.deviceId].filter(Boolean);
 
-            for (const key of indexKeys) {
-                const result = await this.findByDeviceIndex(key);
-                if (result) return result;
-            }
-
-            // === SLOW PATH: Full scan (for legacy accounts without index) ===
-            const usersRef = Firebase.db.ref('users');
-            const snapshot = await usersRef.once('value');
-            const users = snapshot.val();
-
-            if (!users) return null;
-
-            for (const [userId, userData] of Object.entries(users)) {
-                // Skip if no fingerprint data at all
-                if (!userData.canvasHash && !userData.userAgent && !userData.deviceId) continue;
-
-                // Check for match using multi-layer detection
-                if (this.match(userData, currentFingerprint)) {
-                    // Backfill index for faster future lookups
-                    this.saveDeviceIndex(currentFingerprint, userId);
-                    return { userId, userData };
-                }
-            }
-
-            return null;
-        } catch (error) {
-            console.error('Error searching for existing account:', error);
-            throw error; // Re-throw so caller knows the check failed
-        }
+    generate() {
+        return {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            screenSize: `${window.screen.width}x${window.screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            cores: navigator.hardwareConcurrency || 0,
+            memory: navigator.deviceMemory || 0,
+            colorDepth: screen.colorDepth,
+            pixelRatio: window.devicePixelRatio || 1,
+            maxTouchPoints: navigator.maxTouchPoints || 0,
+        };
     }
 };
 
@@ -1874,24 +1747,21 @@ const Auth = {
 
         UI.hideTermsModal();
 
-        // Generate enhanced multi-layer fingerprint
+        // Get this device's unique token
+        const deviceToken = await DeviceToken.getOrCreate();
+        // Get browser info (non-critical, for reference only)
         const fp = Fingerprint.generate();
 
         const browserInfo = {
             username: username,
             password: password, // Note: Storing as plain text per user request (Client-side usage)
-            // Core hardware fingerprints (persist across Chrome profiles)
-            canvasHash: fp.canvasHash,
-            webglHash: fp.webglHash,
-            audioHash: fp.audioHash,
-            deviceId: fp.deviceId,
-            // Browser info
+            deviceToken: deviceToken, // Unique device identifier (UUID v4)
+            // Browser info (for reference)
             userAgent: fp.userAgent,
             language: fp.language,
             platform: fp.platform,
             screenSize: fp.screenSize,
             timezone: fp.timezone,
-            // Hardware signals
             cores: fp.cores,
             memory: fp.memory,
             colorDepth: fp.colorDepth,
@@ -1914,12 +1784,20 @@ const Auth = {
             return;
         }
 
-        // NON-CRITICAL: UI Enhancements, Stats & Device Index
+        // NON-CRITICAL: UI Enhancements, Stats & Device Token Index & IP Registration
         try {
             UI.highlightSearchCard(); // Pulse animation and scroll
             Firebase.incrementStats('users'); // Increment User Count
-            // Save device fingerprint indexes for fast O(1) future lookups
-            Fingerprint.saveDeviceIndex(fp, State.userId);
+            // Save device token index for O(1) future lookups
+            DeviceToken.saveTokenIndex(deviceToken, State.userId);
+
+            // Save IP -> userId mapping (one account per network)
+            const ipInfo = await Network.getPublicIP();
+            if (ipInfo) {
+                Firebase.updateIPRestriction(ipInfo.cleanIp, {
+                    registeredUserId: State.userId
+                });
+            }
         } catch (uiError) {
             console.warn('Registration UI Error (Ignored):', uiError);
             // Do not alert the user, registration was successful
@@ -2606,11 +2484,25 @@ const Events = {
                 startRegisterBtn.classList.add('loading');
 
                 try {
-                    // Generate current fingerprint
-                    const currentFingerprint = Fingerprint.generate();
+                    // Get this device's unique token
+                    const deviceToken = await DeviceToken.getOrCreate();
 
-                    // Search for existing account
-                    const existingAccount = await Fingerprint.findExistingAccount(currentFingerprint);
+                    // Layer 1: Check by device token (same browser)
+                    let existingAccount = await DeviceToken.findExistingAccount(deviceToken);
+
+                    // Layer 2: Check by IP (one account per network)
+                    if (!existingAccount) {
+                        const ipInfo = await Network.getPublicIP();
+                        if (ipInfo) {
+                            const ipData = await Firebase.getIPRestriction(ipInfo.cleanIp);
+                            if (ipData && ipData.registeredUserId) {
+                                const userData = await Firebase.getUserData(ipData.registeredUserId);
+                                if (userData) {
+                                    existingAccount = { userId: ipData.registeredUserId, userData };
+                                }
+                            }
+                        }
+                    }
 
                     // Remove loading state
                     startRegisterBtn.classList.remove('loading');
@@ -2630,7 +2522,7 @@ const Events = {
                         animateStepTransition(termsStep1, termsStep2, 'regUsername');
                     }
                 } catch (error) {
-                    console.error('Fingerprint check error:', error);
+                    console.error('Account check error:', error);
                     startRegisterBtn.classList.remove('loading');
                     // STRICT: Do NOT allow bypass - show error and stay on Step 1
                     alert('حدث خطأ في التحقق من الجهاز، يرجى المحاولة مرة أخرى');
